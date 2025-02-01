@@ -1,0 +1,12 @@
+# Docker Compose file to setup the database
+# Currently defined to be set up as PSQL v17
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:17
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRESS_DN: omniversity

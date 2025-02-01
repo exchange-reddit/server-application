@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { ExchangeUser } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
+  register() {
+    return { msg: 'Hello World' };
+  }
+
   create(createUserInput: CreateUserInput) {
     return 'This action adds a new user';
   }
