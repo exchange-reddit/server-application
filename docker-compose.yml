@@ -10,3 +10,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRESS_DN: omniversity
+    env_file:
+      - ./user-service/prisma/.env
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./user-service:/app
+    depends_on:
+      - dev-db
