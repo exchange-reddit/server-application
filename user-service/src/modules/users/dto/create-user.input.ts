@@ -32,6 +32,8 @@ export class CreateUserInput {
   @IsEmail()
   exchangeEmail: string;
 
+  // Password validation method is implemented here to verify that it complies with our security conditions
+  // For more information, please check password.validator.ts file
   @Field(() => String, { description: 'Raw Password that the User Creates' })
   @IsString()
   @IsNotEmpty()

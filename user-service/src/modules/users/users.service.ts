@@ -2,19 +2,24 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { VerificationTokenService } from 'src/service/email-verification.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private verificationToken: VerificationTokenService,
+  ) {}
   async register(createUserInput: CreateUserInput) {
-    // Validate strength of password prior to continuation
-
+    // Hash the password that the user passed.
     const hash = await argon.hash(createUserInput.password);
 
     try {
@@ -52,6 +57,31 @@ export class UsersService {
         throw err;
       }
     }
+  }
+
+  async generateEmailVerification(userId: number) {
+    // Check if user account exists in db
+    const user = await this.prisma.exchangeUser.findUnique({
+      where: { id: userId },
+    });
+
+    // If the user does not exist, throw an exception.
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // If both of the emails are already verified, throw an exception.
+    if (user.homeEmailVerified && user.exchangeEmailVerified) {
+      throw new UnprocessableEntityException('Account already verified');
+    }
+    // Generate OTPs for Home University and Exchange University
+    const otpArray = await this.verificationToken.generateOtp(user.id);
+
+    // Separate the otp into two parts
+    const otpHome = otpArray[0];
+    const otpExchange = otpArray[1];
+
+    // Make HTTP request to notification service (email)
   }
 
   create() {

@@ -14,21 +14,39 @@ datasource db {
 }
 
 model ExchangeUser {
-  id                Int       @id @default(autoincrement())
-  firstName         String
-  lastName          String
-  homeEmail         String    @unique
-  exchangeEmail     String    @unique
-  passwordHash      String
-  isAdmin           Boolean   @default(false)
-  exchangeUni       String
-  homeUni           String
-  nationality       String
-  exchangeStart     DateTime
-  exchangeEnd       DateTime
-  dateOfBirth       DateTime?
-  preferredLanguage Language  @default(ENGLISH)
-  isActive          Boolean   @default(true)
+  id                    Int       @id @default(autoincrement())
+  firstName             String
+  lastName              String
+  homeEmail             String    @unique
+  exchangeEmail         String    @unique
+  passwordHash          String
+  isAdmin               Boolean   @default(false)
+  exchangeUni           String
+  homeUni               String
+  nationality           String
+  exchangeStart         DateTime
+  exchangeEnd           DateTime
+  dateOfBirth           DateTime?
+  preferredLanguage     Language  @default(ENGLISH)
+  isActive              Boolean   @default(true)
+  homeEmailVerified     Boolean   @default(false)
+  exchangeEmailVerified Boolean   @default(false)
+}
+
+model HomeToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model ExchangeToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 enum Language {
