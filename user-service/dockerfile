@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM gradle:8.5-jdk17 AS build
+FROM eclipse-temurin:17 AS build
 
 # Set working directory inside the build container
 WORKDIR /app
@@ -14,7 +14,7 @@ COPY src ./src
 RUN ./gradlew clean build -x test
 
 # ---- Run Stage ----
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17
 
 # Set working directory inside the final container
 WORKDIR /app

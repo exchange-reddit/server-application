@@ -1,13 +1,15 @@
 version: '3.7'
 services:
-  app:
+  user-service:
     build:
-      context: .
-      dockerfile: Dockerfile   # Use the Dockerfile to build the app
+      context: ./user-service
+      dockerfile: ./dockerfile   # Use the Dockerfile to build the app
     environment:
-      - DB_URL=jdbc:postgresql://db:5432/mydb
-      - DB_USERNAME=your_db_username
-      - DB_PASSWORD=your_db_password
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -16,8 +18,10 @@ services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_DB: mydb
-      POSTGRES_USER: your_db_username
-      POSTGRES_PASSWORD: your_db_password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
     ports:
-      - "5432:5432"
+      - "5433:5432"
