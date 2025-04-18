@@ -5,62 +5,83 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 // Applying properties of inheritance
+
+/**
+ * Notes:
+ * Tried to set table name as user but turned out that user is a reserved keyword in psql.
+ * Therefore, I set it as users.
+ */
 @Entity
-@Table(name="USER")
+@Table(name="users")
+
 public class User {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
+        @Column(name="id", nullable = false)
         private int id;
 
-        @Column(name="USER_TYPE", nullable = false)
+        // Both prospective and exchange user accounts will be saved in the same db as prospective users shall be upgraded to exchange user account upon enrollment at the university of exchange.
+        // Upon the submission of all datum marked as 'exchange user', the userType attribute will be changed to exchangeUser.
+        @Column(name="user_type", nullable = false)
         private UserType userType;
 
-        @Column(name="NAME", length=50, nullable = false)
+        // Instead of saving first name and last name separately, the entire name will be saved in a single variable.
+        @Column(name="name", length=50, nullable = false)
         private String name;
 
-        // Private Email: User's private email address
-        @Column(name="PRIVATE_EMAIL", nullable = false, unique = true)
+        // Private email will be required in addition to the home university email.
+        // This choice has been made as there is a possibility of account loss when the user graduates from their home university.
+        @Column(name="private_email", nullable = false, unique = true)
         private String privateEmail;
 
-        @Column(name="PASSWORD_HASH", nullable = false)
+        // Variable to help users connect with students from their home university who are planning to apply to the same university of exchange.
+        @Column(name="home_uni", nullable = false)
+        private University homeUni;
+
+        // Home university email to assure that the user joining the platform actually is a university student.
+        @Column(name="home_email", nullable = false, unique = true)
+        private String homeEmail;
+
+        @Column(name="password_hash", nullable = false)
         private String passwordHash;
 
-        @Column(name="USER_ID", nullable = false, unique = true)
+        // User Id that would be displayed when the users write comments / posts.
+        @Column(name="user_id", nullable = false, unique = true)
         private String userId;
 
-        @Column(name="DATE_OF_BIRTH", nullable = false)
+        // Method to validate that the user is not too young or old.
+        @Column(name="date_of_birth", nullable = false)
         private Date dateOfBirth;
 
-        @Column(name="IS_ADMIN", nullable = false)
+        @Column(name="is_admin", nullable = false)
         private boolean isAdmin;
 
         // From here, information needed for Exchange_Users
 
-        @Column(name="EXCHANGE_UNI", nullable = false)
+        // Exchange university that the user will actually attend.
+        @Column(name="exchange_uni")
         private University exchangeUni;
 
-        @Column(name="HOME_UNI", nullable = false)
-        private University homeUni;
-
-        @Column(name="EXCHANGE_EMAIL", nullable = false, unique = true)
+        // Exchange university email to assure that the user joining the platform actually is enrolling at the university as an exchange student.
+        @Column(name="exchange_email", unique = true)
         private String exchangeEmail;
 
-        @Column(name="HOME_EMAIL", nullable = false, unique = true)
-        private String homeEmail;
-
-        @Column(name="NATIONALITY", nullable = false)
+        @Column(name="nationality")
         private Country nationality;
 
-        @Column(name="EXCHANGE_START", nullable = false)
+        // Date to initiate the user account's active exchange user status
+        @Column(name="exchange_start")
         private Date exchangeStart;
 
-        @Column(name="EXCHANGE_END", nullable = false)
+        // Date to terminate the user account's active exchange user status.
+        @Column(name="exchange_end")
         private Date exchangeEnd;
 
-        @Column(name="PREFERRED_LANGUAGE", nullable = false)
+        // Mainly used for community recommendation
+        @Column(name="preferred_language")
         private Language preferredLanguage;
 
-        @Column(name="IS_ACTIVE", nullable = false)
+        @Column(name="is_active")
         private Boolean isActive;
 
         public User() {}

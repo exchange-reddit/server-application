@@ -14,7 +14,7 @@ import java.util.Date;
  * Consider migrating dto to a record rather than a class.
  * A custom validator for date of birth to constrain user with a certain age.
  */
-public class ExchangeUserRegistrationDTO {
+public class ExchangeUserRegistrationDto {
     private UserType userType;
     @NotBlank(message = "Name cannot be blank")
     private String name;
@@ -50,7 +50,7 @@ public class ExchangeUserRegistrationDTO {
     private Boolean isActive;
 
 
-    public ExchangeUserRegistrationDTO(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
+    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
         this.userType = userType;
         this.name = name;
         this.privateEmail = privateEmail;
