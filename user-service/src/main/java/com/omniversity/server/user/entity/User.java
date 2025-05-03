@@ -18,7 +18,7 @@ public class User {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         @Column(name="id", nullable = false)
-        private int id;
+        private long id;
 
         // Both prospective and exchange user accounts will be saved in the same db as prospective users shall be upgraded to exchange user account upon enrollment at the university of exchange.
         // Upon the submission of all datum marked as 'exchange user', the userType attribute will be changed to exchangeUser.
@@ -34,6 +34,10 @@ public class User {
         @Column(name="private_email", nullable = false, unique = true)
         private String privateEmail;
 
+        // Check Private email verification status
+        @Column(name="private_email_verified", nullable = false)
+        private boolean privateEmailVerified;
+
         // Variable to help users connect with students from their home university who are planning to apply to the same university of exchange.
         @Column(name="home_uni", nullable = false)
         private University homeUni;
@@ -41,6 +45,10 @@ public class User {
         // Home university email to assure that the user joining the platform actually is a university student.
         @Column(name="home_email", nullable = false, unique = true)
         private String homeEmail;
+
+        // Check home uni email verification status
+        @Column(name="home_email_verified", nullable = false)
+        private boolean homeEmailVerified;
 
         @Column(name="password_hash", nullable = false)
         private String passwordHash;
@@ -66,6 +74,10 @@ public class User {
         @Column(name="exchange_email", unique = true)
         private String exchangeEmail;
 
+        // Check exchange email verification status
+        @Column(name="exchange_email_verified", nullable = false)
+        private boolean exchangeEmailVerified;
+
         @Column(name="nationality")
         private Country nationality;
 
@@ -86,18 +98,21 @@ public class User {
 
         public User() {}
 
-        public User (int id, String name, String privateEmail,String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
+        public User (int id, String name, String privateEmail, Boolean privateEmailVerified, String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, Boolean exchangeEmailVerified, String homeEmail, Boolean homeEmailVerified, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
                 this.id = id;
                 this.name = name;
                 this.privateEmail = privateEmail;
+                this.privateEmailVerified = false;
                 this.passwordHash = passwordHash;
                 this.userId = userId;
                 this.dateOfBirth = dateOfBirth;
                 this.isAdmin = isAdmin;
                 this.userType = userType;
                 this.homeUni = homeUni;
+                this.homeEmailVerified = false;
                 this.exchangeUni = exchangeUni;
                 this.exchangeEmail = exchangeEmail;
+                this.exchangeEmailVerified = false;
                 this.homeEmail = homeEmail;
                 this.nationality = nationality;
                 this.exchangeStart = exchangeStart;
@@ -106,11 +121,11 @@ public class User {
                 this.isActive = isActive;
         }
 
-        public int getId() {
+        public long getId() {
                 return id;
         }
 
-        public void setId(int id) {
+        public void setId(long id) {
                 this.id = id;
         }
 
@@ -241,6 +256,21 @@ public class User {
         public void setActive(Boolean active) {
                 isActive = active;
         }
+
+        public void setEmailVerified(Boolean verified, int emailType) {
+                switch (emailType) {
+                        case (1):
+                                privateEmailVerified = verified;
+                                break;
+                        case (2):
+                                homeEmailVerified = verified;
+                                break;
+                        case (3):
+                                exchangeEmailVerified = verified;
+                                break;
+                }
+        }
+
 }
 
 
