@@ -15,6 +15,21 @@ services:
     depends_on:
       - db
 
+  verification-service:
+    build:
+      context: ./verification-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${VERIFICATION_DB_URL}
+      - DB_USERNAME=${VERIFICATION_DB_USERNAME}
+      - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
+    env_file:
+      -  .env
+    ports:
+      - "8081:8080"
+    depends_on:
+      - verification-db
+
   db:
     image: postgres:latest
     environment:
@@ -25,3 +40,14 @@ services:
       - .env
     ports:
       - "5433:5432"
+
+  verification-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${VERIFICATION_DB_NAME}
+      POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
+      POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"

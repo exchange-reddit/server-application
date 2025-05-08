@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Email Verification</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; line-height: 1.6; background-color: #f5f5f5;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <!-- Header -->
+    <div style="text-align: center; padding: 20px; background-color: #2c3e50;">
+        <h1 style="color: #ffffff; margin: 0;">Omniversity</h1>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 30px; background-color: #ffffff;">
+        <h2 style="color: #2c3e50; margin-top: 0;">Verify Your Email Address</h2>
+        <p>Hello <span th:text="${name}"></span>,</p>
+        <p>Thank you for registering with [Your Company Name]! Please use the following verification code to activate your account:</p>
+
+        <!-- Verification Code -->
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="display: inline-block; padding: 15px 30px; background-color: #f0f0f0; font-size: 24px; letter-spacing: 3px;">
+                [Verification Code]
+            </div>
+        </div>
+
+
+        <p>If you didn't create an account with Omniversity, you can safely ignore this email.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 20px; color: #666666; font-size: 12px;">
+        <p>© [Year] [Your Company Name]. All rights reserved.</p>
+        <p>[Company Address]</p>
+        <p>Need help? <a href="[Contact URL]" style="color: #3498db;">Contact Support</a></p>
+    </div>
+</div>
+</body>
+</html>
