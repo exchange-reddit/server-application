@@ -1,1 +1,3 @@
 rootProject.name = 'post-service'
+include 'post-service'
+
