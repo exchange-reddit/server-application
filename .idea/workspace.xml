@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e1496db9-4ef3-4e1f-bb32-d21f2db13aa1" name="Changes" comment="Add post-service folder">
+    <list default="true" id="e1496db9-4ef3-4e1f-bb32-d21f2db13aa1" name="Changes" comment="Add .idea/misc.xml and vsc.xml to gitignore">
       <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__ch_qos_logback_logback_classic_1_5_18.xml" afterDir="false" />
