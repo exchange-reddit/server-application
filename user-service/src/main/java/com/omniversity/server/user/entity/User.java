@@ -106,6 +106,9 @@ public class User {
                 this.isActive = isActive;
         }
 
+        public User(int i, String exchange_user, String test) {
+        }
+
         public int getId() {
                 return id;
         }
