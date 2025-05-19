@@ -80,7 +80,7 @@ public class UserService {
         }
 
         // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (userRepository.findByHomeEmail(prospectiveUserRegistrationDto.userId()).size() != 0) {
+        if (userRepository.findByExchangeEmail(prospectiveUserRegistrationDto.userId()).size() != 0) {
             throw new RuntimeException("Error: This id has already been taken by an another user!");
         }
 
