@@ -1,5 +1,7 @@
 package com.omniversity.post_service.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +16,13 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Instant createdAt;
     private String title;
     private String content;
-    private String author;
+    private int authorId;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now(); // always UTC
+    }
 }

@@ -27,6 +27,7 @@ public class PostService {
     }
 
     public Post createPost(Post post) {
+
         return postRepository.save(post);
     }
 
@@ -35,7 +36,7 @@ public class PostService {
                 .map(post -> {
                     post.setTitle(updatedPost.getTitle());
                     post.setContent(updatedPost.getContent());
-                    post.setAuthor(updatedPost.getAuthor());
+                    post.setAuthorId(updatedPost.getAuthor());
                     return postRepository.save(post);
                 })
                 .orElseThrow(() -> new RuntimeException("Post not found"));

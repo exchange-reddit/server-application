@@ -1,6 +1,8 @@
 package com.omniversity.post_service.controller;
 
-import com.omniversity.post_service.dto.PostDto;
+import com.omniversity.post_service.dto.input.PostCreateDto;
+import com.omniversity.post_service.dto.output.PostDto;
+import com.omniversity.post_service.mapper.PostCreateMapper;
 import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.service.PostService;
 import com.omniversity.post_service.entity.Post;
@@ -16,15 +18,17 @@ public class PostController {
 
     private final PostService postService;
     private final PostMapper postMapper;
+    private final PostCreateMapper postCreateMapper;
 
-    public PostController(PostService postService, PostMapper postMapper) {
+    public PostController(PostService postService, PostMapper postMapper, PostCreateMapper postCreateMapper) {
         this.postService = postService;
         this.postMapper = postMapper;
+        this.postCreateMapper = postCreateMapper;
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
-        Post post = postMapper.toEntity(postDto);
+    public ResponseEntity<PostCreateDto> createPost(@RequestBody PostCreateDto postCreateDto) {
+        Post post = postMapper.toEntity(postCreateDto);
         Post savedPost = postService.createPost(post);
         return ResponseEntity.ok(postMapper.toDto(savedPost));
     }

@@ -1,6 +1,6 @@
 package com.omniversity.post_service.mapper;
 
-import com.omniversity.post_service.dto.PostDto;
+import com.omniversity.post_service.dto.output.PostDto;
 import com.omniversity.post_service.entity.Post;
 import org.mapstruct.Mapper;
 
