@@ -1,0 +1,4 @@
+rootProject.name = 'server' // You can rename this
+
+include 'common'
+include 'services:user-service'
