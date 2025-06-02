@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/users/**
+#          filters:
+#            - AddRequestHeader=X-User-Id, #{principal.userId} # ? inject from JWT claims
+jwt:
+  secret: yourverylongandsecurejwtsecretkeythatshouldbepersistent
+  expiration: 3600000
+server:
+  port: 8081
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+management: # <-- Add this section if it doesn't exist
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway # <-- Ensure 'gateway' is included here
