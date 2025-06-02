@@ -1,5 +1,14 @@
 version: '3.7'
 services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: ./dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - gateway-gradle-cache:/home/gradle/.gradle
+
   user-service:
     build:
       context: ./user-service
@@ -12,8 +21,11 @@ services:
       - .env
     ports:
       - "8080:8080"
+    volumes:
+      - user-gradle-cache:/home/gradle/.gradle
     depends_on:
       - db
+
 
   db:
     image: postgres:latest
@@ -25,3 +37,6 @@ services:
       - .env
     ports:
       - "5433:5432"
+volumes:
+  gateway-gradle-cache:
+  user-gradle-cache:
