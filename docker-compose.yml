@@ -13,7 +13,7 @@ services:
 
   user-service:
     build:
-      context: ./services/user-service
+      context: ./user-service
       dockerfile: ./dockerfile   # Use the Dockerfile to build the app
     environment:
       - DB_URL=${DB_URL}
