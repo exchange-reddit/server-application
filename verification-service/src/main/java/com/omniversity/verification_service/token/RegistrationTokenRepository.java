@@ -12,7 +12,7 @@ public interface RegistrationTokenRepository extends JpaRepository<RegistrationT
      * Params: String value of the token
      * Returns: Registration token
      */
-    RegistrationToken findByToken(String token);
+    RegistrationToken findByCode(String code);
 
     /**
      * About: Find token by the email value of the user
@@ -26,12 +26,12 @@ public interface RegistrationTokenRepository extends JpaRepository<RegistrationT
      * Params: Email address, and token value of the verification token
      * Returns: Registration token
      */
-    RegistrationToken findByTokenAndEmail(String token, String email);
+    RegistrationToken findByCodeAndEmail(String code, String email);
 
     /**
      * About: Delete registration token by the token value
      * Params: String value of the token
      */
-    Long removeByToken(String token);
+    Long removeByCode(String code);
 }
 

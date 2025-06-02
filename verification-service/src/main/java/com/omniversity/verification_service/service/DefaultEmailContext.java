@@ -27,7 +27,8 @@ public class DefaultEmailContext implements EmailService{
         Context context = new Context();
         context.setVariables(email.getContext());
 
-        String emailContent = templateEngine.process(email.getTemplateLocation(), context);
+        // IMPORTANT!! When using Thymeleaf, DO NOT use email.getTemplateLocation(). This confuses the whole file path.
+        String emailContent = templateEngine.process("mailing/email_verification_en", context);
 
         mimeMessageHelper.setTo(email.getTo());
         mimeMessageHelper.setFrom(email.getFrom());
