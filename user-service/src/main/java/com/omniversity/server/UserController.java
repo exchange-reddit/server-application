@@ -5,6 +5,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController // This annotation marks the class as a REST controller
 @RequestMapping("/users")
 public class UserController {
+    private JwtTokenProvider tokenProvider;
+
+    public UserController(JwtTokenProvider tokenProvider) {
+        this.tokenProvider = tokenProvider;
+    }
+
     @GetMapping
     public String getAllUsers() {
         return "Hello from User Service: List of all users!";
@@ -18,5 +24,10 @@ public class UserController {
     @PostMapping("/signup")
     public String signupUser(@RequestHeader("X-User-Id") String userId) {
         return "You have successfully reached the signup API: " + userId;
+    }
+
+    @GetMapping("/token") // Publish jwt token, delete it later.
+    public String getToken(@RequestParam("sub") String subject) {
+        return tokenProvider.generateToken(subject);
     }
 }

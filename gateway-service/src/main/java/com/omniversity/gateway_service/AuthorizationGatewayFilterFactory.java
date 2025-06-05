@@ -15,12 +15,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
+public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthorizationGatewayFilterFactory.Config> {
 
     @Autowired
     private SecretKey jwtSigningKey;
 
-    public JwtFilter() {
+    public AuthorizationGatewayFilterFactory() {
         super(Config.class);
     }
 
@@ -35,11 +35,12 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
             }
 
             String authorizationHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-
+            System.out.println("headers: "+ request.getHeaders().get(HttpHeaders.AUTHORIZATION));
             // Ensure the header starts with "Bearer "
             if (!authorizationHeader.startsWith("Bearer ")) {
                 return onError(exchange, "Invalid Authorization header format: Missing Bearer prefix", HttpStatus.UNAUTHORIZED);
             }
+            System.out.println("jwt: " + authorizationHeader);
 
             String jwt = authorizationHeader.substring(7); // Remove "Bearer " prefix
 
@@ -54,6 +55,8 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
 
                 // 3. Check if subject (user ID) is present and not empty
                 String subject = claims.getSubject();
+
+
                 if (subject == null || subject.isEmpty()) {
                     return onError(exchange, "JWT Token is valid but subject (user ID) is missing or empty", HttpStatus.UNAUTHORIZED);
                 }

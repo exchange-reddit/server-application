@@ -1,4 +1,4 @@
-package com.omniversity.gateway_service;
+package com.omniversity.server;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
