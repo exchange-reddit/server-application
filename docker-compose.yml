@@ -14,9 +14,9 @@ services:
       context: ./user-service
       dockerfile: ./dockerfile   # Use the Dockerfile to build the app
     environment:
-      - DB_URL=${DB_URL}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=${USERS_DB_URL}
+      - DB_USERNAME=${USERS_DB_USERNAME}
+      - DB_PASSWORD=${USERS_DB_PASSWORD}
     env_file:
       - .env
     ports:
