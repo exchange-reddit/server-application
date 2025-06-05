@@ -25,7 +25,7 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar gateway-service.jar
 
 # Expose the application port
-EXPOSE 8081
+EXPOSE 8080
 
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "gateway-service.jar"]
