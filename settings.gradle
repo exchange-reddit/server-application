@@ -1,4 +1,0 @@
-rootProject.name = 'server' // You can rename this
-
-include 'gateway-service'
-include 'user-service'
