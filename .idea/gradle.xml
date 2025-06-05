@@ -4,6 +4,11 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
+        <option name="testRunner" value="GRADLE" />
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/user-service" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../Program Files/Gradle/gradle-8.13" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
@@ -11,6 +16,16 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/gateway-service" />
             <option value="$PROJECT_DIR$/user-service" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/verification-service" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../Program Files/Gradle/gradle-8.13" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/verification-service" />
           </set>
         </option>
       </GradleProjectSettings>

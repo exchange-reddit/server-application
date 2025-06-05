@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS "users" (
+    id INT PRIMARY KEY NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    private_email VARCHAR(100) NOT NULL UNIQUE,
+    private_email_verified BIT NOT NULL,
+    password_hash VARCHAR(100) NOT NULL,
+    user_id VARCHAR(50) NOT NULL UNIQUE,
+    date_of_birth DATE NOT NULL,
+    is_admin BIT,
+    exchange_uni VARCHAR(80),
+    home_uni VARCHAR(80),
+    exchange_email VARCHAR(80) UNIQUE,
+    exchange_email_verified BIT NOT NULL,
+    home_email VARCHAR(80) UNIQUE,
+    home_email_verified BIT NOT NULL,
+    nationality VARCHAR(50),
+    exchange_start DATE,
+    exchange_end DATE,
+    preferred_language VARCHAR(50),
+    is_active BIT
+);

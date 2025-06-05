@@ -4,16 +4,16 @@ FROM eclipse-temurin:17 AS build
 # Set working directory inside the build container
 WORKDIR /app
 
-ENV GRADLE_USER_HOME=/home/gradle/.gradle
-
 # Copy only the necessary files to leverage Docker caching
 COPY ./gradlew gradlew
 COPY gradle gradle
-COPY build.gradle ./
+COPY build.gradle settings.gradle ./
 COPY src ./src
 
+RUN chmod +x gradlew
+
 # Build the Spring Boot application
-RUN ./gradlew clean build -x test
+RUN ./gradlew clean build --no-build-cache -x test
 
 # ---- Run Stage ----
 FROM eclipse-temurin:17
@@ -22,10 +22,10 @@ FROM eclipse-temurin:17
 WORKDIR /app
 
 # Copy the built JAR from the previous stage
-COPY --from=build /app/build/libs/*.jar gateway-service.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Expose the application port
 EXPOSE 8080
 
 # Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "gateway-service.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
