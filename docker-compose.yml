@@ -24,7 +24,7 @@ services:
     volumes:
       - user-gradle-cache:/home/gradle/.gradle
     depends_on:
-      - db
+      - users-db
 
   verification-service:
     build:
@@ -42,12 +42,12 @@ services:
       - verification-db
 
 
-  db:
+  users-db:
     image: postgres:latest
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${USERS_DB_NAME}
+      POSTGRES_USER: ${USERS_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
     env_file:
       - .env
     ports:

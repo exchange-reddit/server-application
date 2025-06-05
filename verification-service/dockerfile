@@ -10,6 +10,8 @@ COPY gradle gradle
 COPY build.gradle settings.gradle ./
 COPY src ./src
 
+RUN chmod +x gradlew
+
 # Build the Spring Boot application
 RUN ./gradlew clean build --no-build-cache -x test
 
