@@ -22,3 +22,6 @@
 # Generally, for Gradle projects, it's often recommended to ignore the .iml files as well,
 # as Gradle can regenerate them.
 *.iml
+
+# IGNORE .ENV files
+.env
