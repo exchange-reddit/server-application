@@ -1,11 +1,12 @@
 package com.omniversity.post_service.dto.input;
 
+import com.omniversity.post_service.entity.PostStatus;
 import lombok.Data;
 
 @Data
-public class PostCreateDto {
+public class PostUpdateDto {
     private String title;
     private String content;
-    private Long authorId;
     private Long communityId;
+    private PostStatus status;
 }

@@ -1,7 +1,13 @@
 package com.omniversity.post_service.service;
 
+import com.omniversity.post_service.dto.input.PostCreateDto;
+import com.omniversity.post_service.dto.input.PostUpdateDto;
+import com.omniversity.post_service.dto.output.PostResponseDto;
 import com.omniversity.post_service.entity.Post;
+import com.omniversity.post_service.exception.PostNotFoundException;
+import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,14 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
-
-    @Autowired
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    private final PostMapper postMapper;
 
     public List<Post> getAllPosts() {
         return postRepository.findAll();
@@ -26,20 +29,19 @@ public class PostService {
         return postRepository.findById(id);
     }
 
-    public Post createPost(Post post) {
-
-        return postRepository.save(post);
+    public PostResponseDto createPost(PostCreateDto createDto) {
+        Post post = postMapper.toEntity(createDto);
+        Post savedPost = postRepository.save(post);
+        return postMapper.toResponseDto(savedPost);
     }
 
-    public Post updatePost(Long id, Post updatedPost) {
-        return postRepository.findById(id)
-                .map(post -> {
-                    post.setTitle(updatedPost.getTitle());
-                    post.setContent(updatedPost.getContent());
-                    post.setAuthorId(updatedPost.getAuthor());
-                    return postRepository.save(post);
-                })
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+    public PostResponseDto updatePost(Long postId, PostUpdateDto updateDto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        postMapper.updateEntity(post, updateDto);
+        Post updatedPost = postRepository.save(post);
+        return postMapper.toResponseDto(updatedPost);
     }
 
     public void deletePost(Long id) {

@@ -1,7 +1,7 @@
 package com.omniversity.post_service.controller;
 
 import com.omniversity.post_service.dto.input.PostCreateDto;
-import com.omniversity.post_service.dto.output.PostDto;
+import com.omniversity.post_service.dto.output.PostResponseDto;
 import com.omniversity.post_service.mapper.PostCreateMapper;
 import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.service.PostService;
@@ -34,21 +34,21 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getAllPosts() {
+    public ResponseEntity<List<PostResponseDto>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
         return ResponseEntity.ok(postMapper.toDtoList(posts));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable Long id) {
+    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
         return postService.getPostById(id)
                 .map(post -> ResponseEntity.ok(postMapper.toDto(post)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
-        Post updatedPost = postMapper.toEntity(postDto);
+    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestBody PostResponseDto postResponseDto) {
+        Post updatedPost = postMapper.toEntity(postResponseDto);
         Post savedPost = postService.updatePost(id, updatedPost);
         return ResponseEntity.ok(postMapper.toDto(savedPost));
     }

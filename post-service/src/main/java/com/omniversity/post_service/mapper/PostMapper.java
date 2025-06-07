@@ -1,14 +1,18 @@
 package com.omniversity.post_service.mapper;
 
-import com.omniversity.post_service.dto.output.PostDto;
+import com.omniversity.post_service.dto.input.PostCreateDto;
+import com.omniversity.post_service.dto.input.PostUpdateDto;
+import com.omniversity.post_service.dto.output.PostResponseDto;
+import com.omniversity.post_service.dto.output.PostListItemDto;
 import com.omniversity.post_service.entity.Post;
-import org.mapstruct.Mapper;
 
-import java.util.List;
-
-@Mapper(componentModel = "spring")
 public interface PostMapper {
-    PostDto toDto(Post post);
-    Post toEntity(PostDto postDto);
-    List<PostDto> toDtoList(List<Post> posts);
+
+    Post toEntity(PostCreateDto dto);
+
+    void updateEntity(Post post, PostUpdateDto dto);
+
+    PostResponseDto toResponseDto(Post post);
+
+    PostListItemDto toListItemDto(Post post);
 }
