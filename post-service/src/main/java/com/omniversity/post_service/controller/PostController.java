@@ -1,12 +1,10 @@
 package com.omniversity.post_service.controller;
 
 import com.omniversity.post_service.dto.input.PostCreateDto;
+import com.omniversity.post_service.dto.input.PostUpdateDto;
+import com.omniversity.post_service.dto.output.PostListItemDto;
 import com.omniversity.post_service.dto.output.PostResponseDto;
-import com.omniversity.post_service.mapper.PostCreateMapper;
-import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.service.PostService;
-import com.omniversity.post_service.entity.Post;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,40 +15,40 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final PostMapper postMapper;
-    private final PostCreateMapper postCreateMapper;
 
-    public PostController(PostService postService, PostMapper postMapper, PostCreateMapper postCreateMapper) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.postMapper = postMapper;
-        this.postCreateMapper = postCreateMapper;
     }
 
     @PostMapping
-    public ResponseEntity<PostCreateDto> createPost(@RequestBody PostCreateDto postCreateDto) {
-        Post post = postMapper.toEntity(postCreateDto);
-        Post savedPost = postService.createPost(post);
-        return ResponseEntity.ok(postMapper.toDto(savedPost));
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostCreateDto postCreateDto) {
+        PostResponseDto savedPostDto = postService.createPost(postCreateDto);
+        return ResponseEntity.ok(savedPostDto);
     }
 
-    @GetMapping
+    @GetMapping("/all-posts")
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {
-        List<Post> posts = postService.getAllPosts();
-        return ResponseEntity.ok(postMapper.toDtoList(posts));
+        List<PostResponseDto> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
+    }
+
+    // Optional: expose your ListItem DTO API
+    @GetMapping("/list-items")
+    public ResponseEntity<List<PostListItemDto>> getAllPostListItems() {
+        List<PostListItemDto> posts = postService.getAllPostListItems();
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
-        return postService.getPostById(id)
-                .map(post -> ResponseEntity.ok(postMapper.toDto(post)))
-                .orElse(ResponseEntity.notFound().build());
+        PostResponseDto postDto = postService.getPostById(id);
+        return ResponseEntity.ok(postDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestBody PostResponseDto postResponseDto) {
-        Post updatedPost = postMapper.toEntity(postResponseDto);
-        Post savedPost = postService.updatePost(id, updatedPost);
-        return ResponseEntity.ok(postMapper.toDto(savedPost));
+    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestBody PostUpdateDto postUpdateDto) {
+        PostResponseDto updatedPost = postService.updatePost(id, postUpdateDto);
+        return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping("/{id}")

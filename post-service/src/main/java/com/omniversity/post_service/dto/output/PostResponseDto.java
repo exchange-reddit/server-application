@@ -14,4 +14,5 @@ public class PostResponseDto {
     private Long authorId;
     private Long communityId;
     private PostStatus status;
+    private boolean isEdited;
 }

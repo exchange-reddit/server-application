@@ -2,6 +2,7 @@ package com.omniversity.post_service.service;
 
 import com.omniversity.post_service.dto.input.PostCreateDto;
 import com.omniversity.post_service.dto.input.PostUpdateDto;
+import com.omniversity.post_service.dto.output.PostListItemDto;
 import com.omniversity.post_service.dto.output.PostResponseDto;
 import com.omniversity.post_service.entity.Post;
 import com.omniversity.post_service.exception.PostNotFoundException;
@@ -21,12 +22,21 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponseDto> getAllPosts() {
+        return postRepository.findAll().stream()
+                .map(postMapper::toResponseDto)
+                .toList();
     }
 
-    public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+    public List<PostListItemDto> getAllPostListItems() {
+        return postRepository.findAllProjected();
+    }
+
+    public PostResponseDto getPostById(Long id) throws PostNotFoundException {
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+        PostResponseDto dto = postMapper.toResponseDto(post);
+        dto.setEdited(!post.getCreatedAt().equals(post.getUpdatedAt()));
+        return dto;
     }
 
     public PostResponseDto createPost(PostCreateDto createDto) {
@@ -35,7 +45,7 @@ public class PostService {
         return postMapper.toResponseDto(savedPost);
     }
 
-    public PostResponseDto updatePost(Long postId, PostUpdateDto updateDto) {
+    public PostResponseDto updatePost(Long postId, PostUpdateDto updateDto) throws PostNotFoundException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
@@ -44,6 +54,7 @@ public class PostService {
         return postMapper.toResponseDto(updatedPost);
     }
 
+    // should the service wait for the delete response?
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }

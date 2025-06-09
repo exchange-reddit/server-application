@@ -20,7 +20,7 @@ public class PostMapperImpl implements PostMapper {
         post.setAuthorId(dto.getAuthorId());
         post.setCommunityId(dto.getCommunityId());
         post.setStatus(PostStatus.PUBLISHED); // default status
-        post.setIsDeleted(false); // default value
+        post.setDeleted(false); // default value
         return post;
     }
 
