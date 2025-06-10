@@ -1,0 +1,15 @@
+package com.omniversity.gateway_service;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+
+// The security is being deescalated for development purpose. Please raise security when it's deployed
+@SpringBootApplication(exclude={SecurityAutoConfiguration.class})
+public class ServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServerApplication.class, args);
+    }
+
+}
