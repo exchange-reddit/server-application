@@ -1,27 +1,69 @@
 version: '3.7'
 services:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: ./dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - gateway-gradle-cache:/home/gradle/.gradle
+
   user-service:
     build:
       context: ./user-service
       dockerfile: ./dockerfile   # Use the Dockerfile to build the app
     environment:
-      - DB_URL=${DB_URL}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=${USERS_DB_URL}
+      - DB_USERNAME=${USERS_DB_USERNAME}
+      - DB_PASSWORD=${USERS_DB_PASSWORD}
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - user-gradle-cache:/home/gradle/.gradle
     depends_on:
-      - db
+      - users-db
 
-  db:
+  verification-service:
+    build:
+      context: ./verification-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${VERIFICATION_DB_URL}
+      - DB_USERNAME=${VERIFICATION_DB_USERNAME}
+      - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
+    env_file:
+      -  .env
+    ports:
+      - "8082:8082"
+    depends_on:
+      - verification-db
+
+
+  users-db:
     image: postgres:latest
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${USERS_DB_NAME}
+      POSTGRES_USER: ${USERS_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
     env_file:
       - .env
     ports:
       - "5433:5432"
+
+  verification-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${VERIFICATION_DB_NAME}
+      POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
+      POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"
+
+volumes:
+  gateway-gradle-cache:
+  user-gradle-cache:
