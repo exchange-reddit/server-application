@@ -4,13 +4,8 @@ spring:
   cloud:
     gateway:
       routes:
-<<<<<<< HEAD
-        - id: user-service-login
-          uri: http://user-service:8080/
-=======
         - id: user-service
-          uri: http://localhost:8081/
->>>>>>> main
+          uri: http://localhost:8081/ # Used to be localhost:8080 but modified to 8081 during merge conflict resolution
           predicates:
             - Path=/users/login
             - Method=POST
