@@ -4,8 +4,13 @@ spring:
   cloud:
     gateway:
       routes:
+<<<<<<< HEAD
         - id: user-service-login
           uri: http://user-service:8080/
+=======
+        - id: user-service
+          uri: http://localhost:8081/
+>>>>>>> main
           predicates:
             - Path=/users/login
             - Method=POST
@@ -22,7 +27,7 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: 3600000
 server:
-  port: 8081
+  port: 8080
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

@@ -1,0 +1,17 @@
+package com.omniversity.server.user;
+
+import com.omniversity.server.user.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    // Check if the transferred dto is a duplicate or not (privateEmail, exchangeEmail, homeEmail)
+    List<User> findByPrivateEmail(String privateEmail);
+    List<User> findByExchangeEmail(String exchangeEmail);
+    List<User> findByHomeEmail(String homeEmail);
+    List<User> findByUserId(String userId);
+
+}
