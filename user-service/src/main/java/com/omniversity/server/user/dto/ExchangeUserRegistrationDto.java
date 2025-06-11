@@ -136,4 +136,3 @@ public class ExchangeUserRegistrationDto {
         return isActive;
     }
 }
-

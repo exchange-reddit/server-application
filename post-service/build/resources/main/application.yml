@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: post-service
+  datasource:
+    url: ${POST_DB_URL}
+    username: ${POST_DB_USERNAME}
+    password: ${POST_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+server:
+  port: 8083
