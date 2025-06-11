@@ -43,6 +43,22 @@ services:
       - "8082:8082"
     depends_on:
       - verification-db
+      -
+  post-service:
+    build:
+      context: ./post-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${POST_DB_URL}
+      - DB_USERNAME=${POST_DB_USERNAME}
+      - DB_PASSWORD=${POST_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "8083:8083"
+    depends_on:
+      - post-db
+
 
 
   users-db:
@@ -67,6 +83,16 @@ services:
     ports:
       - "5434:5432"
 
+  post-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${POST_DB_NAME}
+      POSTGRES_USER: ${POST_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POST_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5435:5432"
 volumes:
   gateway-gradle-cache:
   user-gradle-cache:
