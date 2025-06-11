@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("SELECT new com.omniversity.post_service.dto.PostListItemDto(p.id, p.title, p.createdAt, p.authorId, p.status) FROM Post p")
+    @Query("SELECT new com.omniversity.post_service.dto.output.PostListItemDto(p.id, p.title, p.createdAt, p.authorId, p.status) FROM Post p")
     List<PostListItemDto> findAllProjected();
 }

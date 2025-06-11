@@ -9,11 +9,9 @@ import com.omniversity.post_service.exception.PostNotFoundException;
 import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +32,10 @@ public class PostService {
 
     public PostResponseDto getPostById(Long id) throws PostNotFoundException {
         Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
+        System.out.println("Post: " + post);
         PostResponseDto dto = postMapper.toResponseDto(post);
         dto.setEdited(!post.getCreatedAt().equals(post.getUpdatedAt()));
+        System.out.println("DTO: " + dto);
         return dto;
     }
 
@@ -54,7 +54,6 @@ public class PostService {
         return postMapper.toResponseDto(updatedPost);
     }
 
-    // should the service wait for the delete response?
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }

@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+@Table(name = "post")
 @Data // Generates getters, setters, toString, equals, and hashCode
 @NoArgsConstructor // Generates default constructor
 @AllArgsConstructor // Generates all-args constructor
@@ -27,11 +28,10 @@ public class Post {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "title", nullable = false, length = 255)
     private String title;
 
-    @Lob // For large text content
-    @Column(nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
     @Column(name = "author_id", nullable = false)
@@ -44,6 +44,6 @@ public class Post {
     private boolean isDeleted = false; // default to false
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private PostStatus status = PostStatus.PUBLISHED; // default value
 }

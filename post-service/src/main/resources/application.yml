@@ -1,1 +1,25 @@
-spring.application.name=post-service
+spring:
+  application:
+    name: post-service
+  datasource:
+    url: ${POST_DB_URL}
+    username: ${POST_DB_USERNAME}
+    password: ${POST_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+server:
+  port: 8083
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql: TRACE # This shows parameter bindings

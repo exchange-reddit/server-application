@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar post-service.jar
 
 # Expose the application port
-EXPOSE 8081
+EXPOSE 8083
 
 # Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "post-service.jar"]
