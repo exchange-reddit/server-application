@@ -46,4 +46,7 @@ public class Post {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PostStatus status = PostStatus.PUBLISHED; // default value
+
+    @Column(name = "attachment_path")
+    private String attachmentPath;
 }

@@ -43,7 +43,7 @@ services:
       - "8082:8082"
     depends_on:
       - verification-db
-      -
+
   post-service:
     build:
       context: ./post-service
@@ -58,9 +58,8 @@ services:
       - "8083:8083"
     depends_on:
       - post-db
-
-
-
+    volumes:
+      - ./uploads:/uploads
   users-db:
     image: postgres:latest
     environment:

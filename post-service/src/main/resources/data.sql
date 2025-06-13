@@ -8,7 +8,8 @@ INSERT INTO post (
     is_deleted,
     status,
     created_at,
-    updated_at
+    updated_at,
+    attachment_path
 ) VALUES
 (
     'First Post',
@@ -18,7 +19,8 @@ INSERT INTO post (
     FALSE,
     'PUBLISHED',
     NOW(),
-    NOW()
+    NOW(),
+    '/uploads/first-post.pdf'
 ),
 (
     'Second Post',
@@ -28,7 +30,8 @@ INSERT INTO post (
     FALSE,
     'DRAFT',
     NOW(),
-    NOW()
+    NOW(),
+    '/uploads/second-image.png'
 ),
 (
     'Archived Post',
@@ -38,7 +41,8 @@ INSERT INTO post (
     FALSE,
     'ARCHIVED',
     NOW(),
-    NOW()
+    NOW(),
+    NULL
 ),
 (
     'Deleted Post',
@@ -48,7 +52,8 @@ INSERT INTO post (
     TRUE,
     'PUBLISHED',
     NOW(),
-    NOW()
+    NOW(),
+    '/uploads/deleted-file.txt'
 ),
 (
     'Yet Another Post',
@@ -58,5 +63,6 @@ INSERT INTO post (
     FALSE,
     'PUBLISHED',
     NOW(),
-    NOW()
+    NOW(),
+    '/uploads/yet-another-post.docx'
 );

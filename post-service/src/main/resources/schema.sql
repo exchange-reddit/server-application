@@ -9,5 +9,6 @@ CREATE TABLE post (
     author_id BIGINT NOT NULL,
     community_id BIGINT NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    status VARCHAR(10) NOT NULL DEFAULT 'PUBLISHED'
+    status VARCHAR(10) NOT NULL DEFAULT 'PUBLISHED',
+    attachment_path TEXT
 );
