@@ -42,6 +42,21 @@ services:
       - verification-db
 
 
+  recommendation-service:
+    build:
+      context: ./recommendation-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${RECOMMENDATION_DB_URL}
+      - DB_USERNAME=${RECOMMENDATION_DB_USERNAME}
+      - DB_PASSWORD=${RECOMMENDATION_DB_PASSWORD}
+    env_file:
+      -  .env
+    ports:
+      - "8084:8084"
+    depends_on:
+      - recommendation-db
+
   users-db:
     image: postgres:latest
     environment:
@@ -63,6 +78,16 @@ services:
       - .env
     ports:
       - "5434:5432"
+
+  recommendation-db:
+    image: neo4j:5
+    ports:
+      - "7474:7474"  
+      - "7687:7687"  
+    environment:
+      - NEO4J_AUTH=neo4j/your_password_here
+    volumes:
+      - neo4j_data:/data
 
 volumes:
   gateway-gradle-cache:
