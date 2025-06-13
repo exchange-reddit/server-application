@@ -43,26 +43,31 @@ public class UserService {
         this.prospectiveUserMapper = prospectiveUserMapper;
     }
 
+    // Check whether the user id is taken or not
+    public Boolean checkUserIdTaken(String userId) {
+        return Optional.ofNullable(userRepository.findByUserId(userId)).isPresent();
+    }
+
     // Registers exchange users
     public User registerExchangeUser(ExchangeUserRegistrationDto exchangeUserRegistrationDto) {
 
         // Check if the private email entered by the user has been taken by a pre-existing account or not.
-        if (userRepository.findByPrivateEmail(exchangeUserRegistrationDto.getPrivateEmail()).size() != 0) {
+        if (Optional.ofNullable(userRepository.findByPrivateEmail(exchangeUserRegistrationDto.getPrivateEmail())).isPresent()) {
             throw new RuntimeException("Error: You have already created an account with this email!");
         }
 
         // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (userRepository.findByHomeEmail(exchangeUserRegistrationDto.getHomeEmail()).size() != 0) {
+        if (Optional.ofNullable(userRepository.findByHomeEmail(exchangeUserRegistrationDto.getHomeEmail())).isPresent()) {
             throw new RuntimeException("Error: This email has already been used by an another account for verification!");
         }
 
         // Check if the exchange email that the user is trying to use to verify the account has been used or not.
-        if (userRepository.findByExchangeEmail(exchangeUserRegistrationDto.getExchangeEmail()).size() != 0) {
+        if (Optional.ofNullable(userRepository.findByExchangeEmail(exchangeUserRegistrationDto.getExchangeEmail())).isPresent()) {
             throw new RuntimeException("Error: This email has already been used by an other account for verification!");
         }
 
         // Check if the user id has been taken by an another user or not.
-        if (userRepository.findByUserId(exchangeUserRegistrationDto.getUserId()) != null) {
+        if (checkUserIdTaken(exchangeUserRegistrationDto.getUserId())) {
             throw new RuntimeException("Error: This username has already been used by an another user.");
         }
 
@@ -78,18 +83,18 @@ public class UserService {
     // Registers prospective exchange student users
     public User registerProspectiveUser(ProspectiveUserRegistrationDto prospectiveUserRegistrationDto) {
         // Check if the private email entered by the user has been taken by a pre-existing account or not.
-        if (userRepository.findByPrivateEmail(prospectiveUserRegistrationDto.privateEmail()).size() != 0) {
+        if (Optional.ofNullable(userRepository.findByPrivateEmail(prospectiveUserRegistrationDto.privateEmail())).isPresent()) {
             throw new RuntimeException("Error: You have already created an account with this email!");
         }
 
         // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (userRepository.findByHomeEmail(prospectiveUserRegistrationDto.homeEmail()).size() != 0) {
+        if (Optional.ofNullable(userRepository.findByHomeEmail(prospectiveUserRegistrationDto.homeEmail())).isPresent()) {
             throw new RuntimeException("Error: This email has already been used by an another account for verification!");
         }
 
-        // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (userRepository.findByExchangeEmail(prospectiveUserRegistrationDto.userId()).size() != 0) {
-            throw new RuntimeException("Error: This id has already been taken by an another user!");
+        // Check if the user id has been taken by an another user or not.
+        if (checkUserIdTaken(prospectiveUserRegistrationDto.userId())) {
+            throw new RuntimeException("Error: This username has already been used by an another user.");
         }
 
         User user = prospectiveUserMapper.toEntity(prospectiveUserRegistrationDto);

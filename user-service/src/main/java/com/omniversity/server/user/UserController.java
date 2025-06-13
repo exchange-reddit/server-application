@@ -33,6 +33,15 @@ public class UserController {
         return null;
     }
 
+    @GetMapping("checkID/{id}")
+    ResponseEntity checkUserIdTaken(@PathVariable String id) {
+        try {
+            return new ResponseEntity<Boolean>(this.userService.checkUserIdTaken(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping("/register/exchange-user")
     ResponseEntity registerExchangeUser(@RequestBody ExchangeUserRegistrationDto exchangeUserRegistrationDTO) {
         try {

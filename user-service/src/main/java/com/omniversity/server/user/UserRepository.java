@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     // Check if the transferred dto is a duplicate or not (privateEmail, exchangeEmail, homeEmail)
-    List<User> findByPrivateEmail(String privateEmail);
-    List<User> findByExchangeEmail(String exchangeEmail);
-    List<User> findByHomeEmail(String homeEmail);
+    User findByPrivateEmail(String privateEmail);
+    User findByExchangeEmail(String exchangeEmail);
+    User findByHomeEmail(String homeEmail);
     User findById(long userId);
     User findByUserId(String userId);
     Boolean deleteById(long userId);
