@@ -1,83 +1,83 @@
 version: '3.7'
 services:
-  gateway-service:
-    build:
-      context: ./gateway-service
-      dockerfile: ./dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - gateway-gradle-cache:/home/gradle/.gradle
+  # gateway-service:
+  #   build:
+  #     context: ./gateway-service
+  #     dockerfile: ./dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - gateway-gradle-cache:/home/gradle/.gradle
 
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: ./dockerfile   # Use the Dockerfile to build the app
-    environment:
-      - DB_URL=${USERS_DB_URL}
-      - DB_USERNAME=${USERS_DB_USERNAME}
-      - DB_PASSWORD=${USERS_DB_PASSWORD}
-    env_file:
-      - .env
-    ports:
-      - "8081:8081"
-    volumes:
-      - user-gradle-cache:/home/gradle/.gradle
-    depends_on:
-      - users-db
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #     dockerfile: ./dockerfile   # Use the Dockerfile to build the app
+  #   environment:
+  #     - DB_URL=${USERS_DB_URL}
+  #     - DB_USERNAME=${USERS_DB_USERNAME}
+  #     - DB_PASSWORD=${USERS_DB_PASSWORD}
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "8081:8081"
+  #   volumes:
+  #     - user-gradle-cache:/home/gradle/.gradle
+  #   depends_on:
+  #     - users-db
 
-  verification-service:
-    build:
-      context: ./verification-service
-      dockerfile: ./dockerfile
-    environment:
-      - DB_URL=${VERIFICATION_DB_URL}
-      - DB_USERNAME=${VERIFICATION_DB_USERNAME}
-      - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
-    env_file:
-      -  .env
-    ports:
-      - "8082:8082"
-    depends_on:
-      - verification-db
-
-
+  # verification-service:
+  #   build:
+  #     context: ./verification-service
+  #     dockerfile: ./dockerfile
+  #   environment:
+  #     - DB_URL=${VERIFICATION_DB_URL}
+  #     - DB_USERNAME=${VERIFICATION_DB_USERNAME}
+  #     - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
+  #   env_file:
+  #     -  .env
+  #   ports:
+  #     - "8082:8082"
+  #   depends_on:
+  #     - verification-db
   recommendation-service:
     build:
       context: ./recommendation-service
       dockerfile: ./dockerfile
     environment:
-      - DB_URL=${RECOMMENDATION_DB_URL}
-      - DB_USERNAME=${RECOMMENDATION_DB_USERNAME}
-      - DB_PASSWORD=${RECOMMENDATION_DB_PASSWORD}
+      - RECOMMENDATION_DB_URL=${RECOMMENDATION_DB_URL}
+      - RECOMMENDATION_DB_USERNAME=${RECOMMENDATION_DB_USERNAME}
+      - RECOMMENDATION_DB_PASSWORD=${RECOMMENDATION_DB_PASSWORD}
     env_file:
       -  .env
     ports:
       - "8084:8084"
     depends_on:
-      - recommendation-db
+      recommendation-db:
+        condition: service_healthy
+  
 
-  users-db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: ${USERS_DB_NAME}
-      POSTGRES_USER: ${USERS_DB_USERNAME}
-      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
-    env_file:
-      - .env
-    ports:
-      - "5433:5432"
+  # users-db:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_DB: ${USERS_DB_NAME}
+  #     POSTGRES_USER: ${USERS_DB_USERNAME}
+  #     POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5433:5432"
 
-  verification-db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: ${VERIFICATION_DB_NAME}
-      POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
-      POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
-    env_file:
-      - .env
-    ports:
-      - "5434:5432"
+  # verification-db:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_DB: ${VERIFICATION_DB_NAME}
+  #     POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
+  #     POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5434:5432"
 
   recommendation-db:
     image: neo4j:5
@@ -85,9 +85,19 @@ services:
       - "7474:7474"  
       - "7687:7687"  
     environment:
-      - NEO4J_AUTH=neo4j/your_password_here
+      - NEO4J_AUTH=neo4j/neo4jpassword
+    env_file:
+      -  .env
     volumes:
-      - neo4j_data:/data
+      - ./app:/app/app
+    healthcheck:
+      # Use CMD-SHELL to run a command that checks if Neo4j is up
+      # and running by trying to access the web interface 
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10 # Give Neo4j more time to start up
+      start_period: 60s # Initial delay before starting checks
 
 volumes:
   gateway-gradle-cache:
