@@ -47,10 +47,12 @@ public class ExchangeUserRegistrationDto {
     private Date exchangeEnd;
     @NotBlank(message = "Preferred language must be provided")
     private Language preferredLanguage;
+
+    private String profilePicture;
     private Boolean isActive;
 
 
-    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
+    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Boolean isActive) {
         this.userType = userType;
         this.name = name;
         this.privateEmail = privateEmail;
@@ -66,6 +68,7 @@ public class ExchangeUserRegistrationDto {
         this.exchangeStart = exchangeStart;
         this.exchangeEnd = exchangeEnd;
         this.preferredLanguage = preferredLanguage;
+        this.profilePicture = profilePicture;
         this.isActive = isActive;
     }
 
@@ -132,6 +135,7 @@ public class ExchangeUserRegistrationDto {
         return preferredLanguage;
     }
 
+    public String getProfilePicture() { return profilePicture; }
     public Boolean getActive() {
         return isActive;
     }

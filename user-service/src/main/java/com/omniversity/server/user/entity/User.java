@@ -93,12 +93,15 @@ public class User {
         @Column(name="preferred_language")
         private Language preferredLanguage;
 
+        @Column(name="profile_picture")
+        private String profilePicture;
+
         @Column(name="is_active")
         private Boolean isActive;
 
         public User() {}
 
-        public User (int id, String name, String privateEmail, Boolean privateEmailVerified, String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, Boolean exchangeEmailVerified, String homeEmail, Boolean homeEmailVerified, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, Boolean isActive) {
+        public User (int id, String name, String privateEmail, Boolean privateEmailVerified, String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, Boolean exchangeEmailVerified, String homeEmail, Boolean homeEmailVerified, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Boolean isActive) {
                 this.id = id;
                 this.name = name;
                 this.privateEmail = privateEmail;
@@ -116,8 +119,9 @@ public class User {
                 this.homeEmail = homeEmail;
                 this.nationality = nationality;
                 this.exchangeStart = exchangeStart;
-                this.exchangeEnd =exchangeEnd;
+                this.exchangeEnd = exchangeEnd;
                 this.preferredLanguage = preferredLanguage;
+                this.profilePicture = profilePicture;
                 this.isActive = isActive;
         }
 
@@ -247,6 +251,14 @@ public class User {
 
         public void setPreferredLanguage(Language preferredLanguage) {
                 this.preferredLanguage = preferredLanguage;
+        }
+
+        public String getProfilePicture() {
+                return profilePicture;
+        }
+
+        public void setProfilePicture(String profilePicture) {
+                this.profilePicture = profilePicture;
         }
 
         public Boolean getActive() {

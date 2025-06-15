@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS "users" (
     exchange_start DATE,
     exchange_end DATE,
     preferred_language VARCHAR(50),
+    profile_picture VARCHAR(8192),
     is_active BIT
 );

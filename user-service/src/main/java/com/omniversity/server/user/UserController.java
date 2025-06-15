@@ -2,10 +2,7 @@ package com.omniversity.server.user;
 
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
-import com.omniversity.server.user.dto.ChangePasswordDto;
-import com.omniversity.server.user.dto.DeleteUserDto;
-import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
-import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
+import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.entity.User;
 import com.omniversity.server.user.entity.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +39,7 @@ public class UserController {
         return null;
     }
 
-    @GetMapping("checkID/{id}")
+    @GetMapping("/checkID/{id}")
     ResponseEntity checkUserIdTaken(@PathVariable String id) {
         try {
             return new ResponseEntity<Boolean>(this.userService.checkUserIdTaken(id), HttpStatus.OK);
@@ -64,6 +61,16 @@ public class UserController {
     ResponseEntity registerProspectiveUser(@RequestBody ProspectiveUserRegistrationDto prospectiveUserRegistrationDto) {
         try {
             return new ResponseEntity<>(this.userService.registerProspectiveUser(prospectiveUserRegistrationDto), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    ResponseEntity updateAccount(@PathVariable Integer id, @RequestBody UpdateAccountDto updateAccountDto) {
+        try {
+            Object updateResponseDto = userService.updateAccount(updateAccountDto, id);
+            return ResponseEntity.status(HttpStatus.OK).body(updateResponseDto);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

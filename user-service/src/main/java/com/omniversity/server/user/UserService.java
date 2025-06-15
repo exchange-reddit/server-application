@@ -5,10 +5,9 @@ import com.omniversity.server.exception.WrongPasswordException;
 import com.omniversity.server.service.ExchangeUserMapper;
 import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.service.ProspectiveUserMapper;
-import com.omniversity.server.user.dto.ChangePasswordDto;
-import com.omniversity.server.user.dto.DeleteUserDto;
-import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
-import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
+import com.omniversity.server.service.UpdateUserMapper;
+import com.omniversity.server.service.UserResponse.UserResponseMapper;
+import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.entity.User;
 
 import com.omniversity.server.user.entity.UserType;
@@ -35,17 +34,30 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private ExchangeUserMapper exchangeUserMapper;
     private ProspectiveUserMapper prospectiveUserMapper;
+    private UpdateUserMapper updateUserMapper;
+    private UserResponseMapper userResponseMapper;
     private PasswordValidator passwordValidator;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper, PasswordValidator passwordValidator) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper, PasswordValidator passwordValidator, UpdateUserMapper updateUserMapper, UserResponseMapper userResponseMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.exchangeUserMapper = exchangeUserMapper;
         this.prospectiveUserMapper = prospectiveUserMapper;
+        this.updateUserMapper = updateUserMapper;
+        this.userResponseMapper = userResponseMapper;
         this.passwordValidator = passwordValidator;
     }
 
+    public User getUser(int id) throws NoSuchUserException{
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(id));
+
+        if (optionalUser.isEmpty()) {
+            throw new NoSuchUserException("The user with following Id was not found: " + id);
+        }
+
+        return optionalUser.get();
+    }
     // Check whether the user id is taken or not
     public Boolean checkUserIdTaken(String userId) {
         return Optional.ofNullable(userRepository.findByUserId(userId)).isPresent();
@@ -113,16 +125,9 @@ public class UserService {
 
     }
 
-
-    public void changePassword (ChangePasswordDto changePasswordDto, int id) {
+    public void changePassword(ChangePasswordDto changePasswordDto, int id) {
         try {
-            Optional<User> possibleUser = Optional.ofNullable(userRepository.findById(id));
-
-            if (possibleUser.isEmpty()) {
-                throw new NoSuchUserException("No user found with ID: " + id);
-            }
-
-            User user = possibleUser.get();
+            User user = getUser(id);
 
             // Verify if the provided current password is correct
             if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
@@ -145,18 +150,30 @@ public class UserService {
         }
     }
 
+    public Object updateAccount(UpdateAccountDto updateAccountDto, int id) {
+        User user = getUser(id);
+        UserType userType = user.getUserType();
+
+        Object response;
+
+        updateUserMapper.updateEntity(user, updateAccountDto);
+
+        userRepository.save(user);
+
+        switch (userType) {
+            case EXCHANGE_USER -> response = userResponseMapper.toResponseExchangeDto(user);
+            case PROSPECTIVE_USER -> response = userResponseMapper.toResponseProspectiveDto(user);
+            default -> response = null;
+        }
+
+        return response;
+
+    }
+
     public Boolean deleteUser(DeleteUserDto deleteUserDto) {
         try {
             // Retrieve the user from the database or throw NoSuchUserException
-            Optional<User> possibleUser = Optional.ofNullable(userRepository.findById(deleteUserDto.userId()));
-
-            // If the requested account does not exist, return an error
-            if (possibleUser.isEmpty()) {
-                throw new NoSuchUserException("No user found with ID: " + deleteUserDto.userId());
-            }
-
-            // Store the user into the variable
-            User user = possibleUser.get();
+            User user = getUser((int)deleteUserDto.userId());
 
             // Validate if the provided password is correct
             if (!passwordValidator.checkPasswordMatch(deleteUserDto.password(), user.getPasswordHash())) {

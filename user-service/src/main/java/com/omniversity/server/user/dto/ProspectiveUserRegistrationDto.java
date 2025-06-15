@@ -34,5 +34,7 @@ public record ProspectiveUserRegistrationDto(
         @NotBlank(message = "Your date of birth must be provided")
         Date dateOfBirth,
 
+        String profilePicture,
+
         Boolean isAdmin
         ){}
