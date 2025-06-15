@@ -1,5 +1,8 @@
 package com.omniversity.server.user;
 
+import com.omniversity.server.exception.NoSuchUserException;
+import com.omniversity.server.exception.WrongPasswordException;
+import com.omniversity.server.user.dto.ChangePasswordDto;
 import com.omniversity.server.user.dto.DeleteUserDto;
 import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
 import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
@@ -12,6 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * TODO:
+ * - Endpoint to edit user accounts
+ * - Endpoint to reset user password
+ * - Function to secure the grace period of 2 weeks
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -38,7 +47,7 @@ public class UserController {
         try {
             return new ResponseEntity<Boolean>(this.userService.checkUserIdTaken(id), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -47,7 +56,7 @@ public class UserController {
         try {
             return new ResponseEntity<>(this.userService.registerExchangeUser(exchangeUserRegistrationDTO), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -56,16 +65,33 @@ public class UserController {
         try {
             return new ResponseEntity<>(this.userService.registerProspectiveUser(prospectiveUserRegistrationDto), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/pwChange/{id}")
+    ResponseEntity changePW(@PathVariable Integer id, @RequestBody ChangePasswordDto changePasswordDto) {
+        try {
+            userService.changePassword(changePasswordDto, id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/delete")
     ResponseEntity deleteUserAccount(@RequestBody DeleteUserDto deleteUserDto) {
         try {
-            return new ResponseEntity<>(this.userService.deleteUser(deleteUserDto), HttpStatus.ACCEPTED);
+            Boolean result = this.userService.deleteUser(deleteUserDto);
+
+            if (result) {
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Your account has been successfully deleted!");
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An unknown error occurred.");
+            }
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

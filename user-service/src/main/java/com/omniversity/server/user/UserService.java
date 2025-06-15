@@ -3,7 +3,9 @@ package com.omniversity.server.user;
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
 import com.omniversity.server.service.ExchangeUserMapper;
+import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.service.ProspectiveUserMapper;
+import com.omniversity.server.user.dto.ChangePasswordDto;
 import com.omniversity.server.user.dto.DeleteUserDto;
 import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
 import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
@@ -23,7 +25,6 @@ import static com.omniversity.server.user.entity.UserType.*;
 
 /**
  * TODO
- * Use 'Mapstruct' rather than manual mapping to reduce redundant codes.
  * Add email verification step prior to registration
  */
 @Service
@@ -34,13 +35,15 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private ExchangeUserMapper exchangeUserMapper;
     private ProspectiveUserMapper prospectiveUserMapper;
+    private PasswordValidator passwordValidator;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper, PasswordValidator passwordValidator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.exchangeUserMapper = exchangeUserMapper;
         this.prospectiveUserMapper = prospectiveUserMapper;
+        this.passwordValidator = passwordValidator;
     }
 
     // Check whether the user id is taken or not
@@ -99,6 +102,10 @@ public class UserService {
 
         User user = prospectiveUserMapper.toEntity(prospectiveUserRegistrationDto);
 
+        if (!passwordValidator.validatePasswordStrength(prospectiveUserRegistrationDto.password())) {
+            throw new RuntimeException("Error: The provided password does not meet the security requirement.");
+        }
+
         user.setPasswordHash(passwordEncoder.encode(prospectiveUserRegistrationDto.password()));
         user.setUserType(PROSPECTIVE_USER);
 
@@ -106,18 +113,35 @@ public class UserService {
 
     }
 
-    // Validate user password (A private method)
-    // Trying to avoid using JWT for this case to avoid malicious attacks
-    private Boolean validatePW(String hashValue, String challengePW) {
+
+    public void changePassword (ChangePasswordDto changePasswordDto, int id) {
         try {
-            // If the pw matches, return true
-            if (passwordEncoder.matches(challengePW, hashValue)) {
-                return true;
-            } else {
-                return false;
+            Optional<User> possibleUser = Optional.ofNullable(userRepository.findById(id));
+
+            if (possibleUser.isEmpty()) {
+                throw new NoSuchUserException("No user found with ID: " + id);
             }
+
+            User user = possibleUser.get();
+
+            // Verify if the provided current password is correct
+            if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
+                throw new WrongPasswordException("Provided password is incorrect");
+            }
+
+            // Verify the strength of the new password
+            if (!passwordValidator.validatePasswordStrength(changePasswordDto.newPassword())) {
+                throw new RuntimeException("Password must be secure");
+            }
+
+            // TODO: Choice of email (Between home, exchange, and private)
+
+            // Set new password for the user
+            user.setPasswordHash(passwordEncoder.encode(changePasswordDto.newPassword()));
+            userRepository.save(user);
+
         } catch (Exception e) {
-            return false;
+            throw e;
         }
     }
 
@@ -126,13 +150,16 @@ public class UserService {
             // Retrieve the user from the database or throw NoSuchUserException
             Optional<User> possibleUser = Optional.ofNullable(userRepository.findById(deleteUserDto.userId()));
 
+            // If the requested account does not exist, return an error
             if (possibleUser.isEmpty()) {
                 throw new NoSuchUserException("No user found with ID: " + deleteUserDto.userId());
             }
 
+            // Store the user into the variable
             User user = possibleUser.get();
 
-            if (!validatePW(user.getPasswordHash(), deleteUserDto.password())) {
+            // Validate if the provided password is correct
+            if (!passwordValidator.checkPasswordMatch(deleteUserDto.password(), user.getPasswordHash())) {
                 throw new WrongPasswordException("Invalid password provided for user deletion");
             }
 
