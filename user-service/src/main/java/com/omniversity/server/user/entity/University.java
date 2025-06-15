@@ -89,5 +89,4 @@ public enum University {
     UNIST,
     GIST,
     DGIST
-
 }
