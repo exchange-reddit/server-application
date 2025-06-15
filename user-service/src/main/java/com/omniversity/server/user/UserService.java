@@ -2,12 +2,13 @@ package com.omniversity.server.user;
 
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
-import com.omniversity.server.service.ExchangeUserMapper;
+import com.omniversity.server.service.Mapper.ExchangeUserMapper;
 import com.omniversity.server.service.PasswordValidator;
-import com.omniversity.server.service.ProspectiveUserMapper;
-import com.omniversity.server.service.UpdateUserMapper;
-import com.omniversity.server.service.UserResponse.UserResponseMapper;
+import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
+import com.omniversity.server.service.Mapper.UpdateUserMapper;
+import com.omniversity.server.service.Mapper.UserResponse.UserResponseMapper;
 import com.omniversity.server.user.dto.*;
+import com.omniversity.server.user.dto.response.ReturnDto;
 import com.omniversity.server.user.entity.User;
 
 import com.omniversity.server.user.entity.UserType;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.Optional;
@@ -58,6 +58,26 @@ public class UserService {
 
         return optionalUser.get();
     }
+
+    // An endpoint to return certain part of the user information
+    public ReturnDto getPublicUserInfo(int id, int option) {
+        try {
+            User user = getUser(id);
+
+            switch (option) {
+                case (1):
+                    return userResponseMapper.toPublicUserProfileDto(user);
+                case (2):
+                    return userResponseMapper.toFriendSuggestionDto(user);
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
     // Check whether the user id is taken or not
     public Boolean checkUserIdTaken(String userId) {
         return Optional.ofNullable(userRepository.findByUserId(userId)).isPresent();

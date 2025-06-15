@@ -1,8 +1,10 @@
-package com.omniversity.server.service.UserResponse;
+package com.omniversity.server.service.Mapper.UserResponse;
 
 import com.omniversity.server.user.dto.response.ExchangeUserResponseNoPasswordDto;
 
+import com.omniversity.server.user.dto.response.FriendSuggestionDto;
 import com.omniversity.server.user.dto.response.ProspectiveUserResponseNoPasswordDto;
+import com.omniversity.server.user.dto.response.PublicUserProfileDto;
 import com.omniversity.server.user.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ public class UserResponse implements UserResponseMapper{
                 user.isAdmin(),
                 user.getHomeUni(),
                 user.getExchangeUni(),
+                user.getProgram(),
                 user.getNationality(),
                 user.getPreferredLanguage(),
                 user.getProfilePicture()
@@ -38,10 +41,37 @@ public class UserResponse implements UserResponseMapper{
                 user.isAdmin(),
                 user.getHomeUni(),
                 user.getNationality(),
+                user.getProgram(),
                 user.getPreferredLanguage(),
                 user.getProfilePicture()
         );
 
         return dto;
     }
+
+    @Override
+    public PublicUserProfileDto toPublicUserProfileDto(User user) {
+        PublicUserProfileDto dto = new PublicUserProfileDto(
+                user.getName(),
+                user.getDateOfBirth(),
+                user.getHomeUni(),
+                user.getUserId(),
+                user.getProfilePicture()
+        );
+
+        return dto;
+    }
+
+    @Override
+    public FriendSuggestionDto toFriendSuggestionDto(User user) {
+        FriendSuggestionDto dto = new FriendSuggestionDto(
+                user.getName(),
+                user.getProfilePicture(),
+                user.getHomeUni(),
+                user.getProgram()
+        );
+
+        return dto;
+    }
+
 }

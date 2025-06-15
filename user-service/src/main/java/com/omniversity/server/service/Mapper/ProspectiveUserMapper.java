@@ -1,4 +1,4 @@
-package com.omniversity.server.service;
+package com.omniversity.server.service.Mapper;
 
 import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.user.entity.User;

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     home_email VARCHAR(80) UNIQUE,
     home_email_verified BIT NOT NULL,
     nationality VARCHAR(50),
+    program VARCHAR(50) NOT NULL,
     exchange_start DATE,
     exchange_end DATE,
     preferred_language VARCHAR(50),

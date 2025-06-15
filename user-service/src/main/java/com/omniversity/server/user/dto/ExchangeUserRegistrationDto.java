@@ -1,9 +1,6 @@
 package com.omniversity.server.user.dto;
 
-import com.omniversity.server.user.entity.Country;
-import com.omniversity.server.user.entity.Language;
-import com.omniversity.server.user.entity.University;
-import com.omniversity.server.user.entity.UserType;
+import com.omniversity.server.user.entity.*;
 import jakarta.validation.constraints.*;
 
 import java.util.Date;
@@ -47,12 +44,13 @@ public class ExchangeUserRegistrationDto {
     private Date exchangeEnd;
     @NotBlank(message = "Preferred language must be provided")
     private Language preferredLanguage;
-
+    @NotBlank(message = "User program must be provided")
+    private Program program;
     private String profilePicture;
     private Boolean isActive;
 
 
-    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Boolean isActive) {
+    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Program program, Boolean isActive) {
         this.userType = userType;
         this.name = name;
         this.privateEmail = privateEmail;
@@ -69,6 +67,7 @@ public class ExchangeUserRegistrationDto {
         this.exchangeEnd = exchangeEnd;
         this.preferredLanguage = preferredLanguage;
         this.profilePicture = profilePicture;
+        this.program = program;
         this.isActive = isActive;
     }
 
@@ -136,6 +135,7 @@ public class ExchangeUserRegistrationDto {
     }
 
     public String getProfilePicture() { return profilePicture; }
+    public Program getProgram() { return program; }
     public Boolean getActive() {
         return isActive;
     }

@@ -1,10 +1,7 @@
 package com.omniversity.server.user;
 
-import com.omniversity.server.exception.NoSuchUserException;
-import com.omniversity.server.exception.WrongPasswordException;
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.entity.User;
-import com.omniversity.server.user.entity.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +11,9 @@ import java.util.List;
 
 /**
  * TODO:
- * - Endpoint to edit user accounts
- * - Endpoint to reset user password
+ * - Guard condition to ensure user verification prior to registration
+ * - Authentication method integration
+ * - Add user posts and communities under account
  * - Function to secure the grace period of 2 weeks
  */
 @RestController
@@ -35,8 +33,30 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    User findById(@PathVariable Integer id) {
-        return null;
+    ResponseEntity findById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(id));
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/profile/{id}")
+    ResponseEntity getUserProfile(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(id, 1));
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/recommendation/{id}")
+    ResponseEntity getRecommendationProfile(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(id, 2));
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/checkID/{id}")
