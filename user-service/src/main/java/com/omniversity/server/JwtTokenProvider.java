@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-
+    private final int expirationMillis = 3 * 60 * 60 * 1000; // 3 hours
 
     private final SecretKey jwtSigningKey;
 
@@ -21,6 +21,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(subject)
                 .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMillis))
                 .signWith(jwtSigningKey)
                 .compact();
     }
