@@ -38,7 +38,5 @@ public record ProspectiveUserRegistrationDto(
         @NotBlank(message = "Your program must be provided")
         Program program,
 
-        String profilePicture,
-
-        Boolean isAdmin
+        String profilePicture
         ){}

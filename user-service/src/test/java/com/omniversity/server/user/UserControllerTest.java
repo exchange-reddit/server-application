@@ -2,6 +2,7 @@ package com.omniversity.server.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omniversity.server.user.entity.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,6 +29,13 @@ public class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    User user;
+
+    @BeforeEach
+    public void setup() {
+        user =
+    }
 
     // Define a helper method to read JSON objects
     private String readResources(String resourcePath) throws IOException {
