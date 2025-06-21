@@ -1,5 +1,12 @@
 package com.omniversity.server.user;
 
+import com.omniversity.server.JwtTokenProvider;
+import com.omniversity.server.service.ExchangeUserMapper;
+import com.omniversity.server.service.ProspectiveUserMapper;
+import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
+import com.omniversity.server.user.dto.LoginInputDto;
+import com.omniversity.server.user.dto.LoginOutputDto;
+import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.exception.ChangedPasswordSameException;
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
@@ -35,11 +42,19 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private ExchangeUserMapper exchangeUserMapper;
     private ProspectiveUserMapper prospectiveUserMapper;
+    private JwtTokenProvider jwtTokenProvider;
     private UpdateUserMapper updateUserMapper;
     private UserResponseMapper userResponseMapper;
     private PasswordValidator passwordValidator;
 
     @Autowired
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            \ExchangeUserMapper exchangeUserMapper,
+            ProspectiveUserMapper prospectiveUserMapper,
+            JwtTokenProvider jwtTokenProvider
+    ) {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper, PasswordValidator passwordValidator, UpdateUserMapper updateUserMapper, UserResponseMapper userResponseMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -82,6 +97,11 @@ public class UserService {
     // Check whether the user id is taken or not
     public Boolean checkUserIdTaken(String userId) {
         return Optional.ofNullable(userRepository.findByUserId(userId)).isPresent();
+    }
+
+    // Login user
+    public LoginOutputDto loginUser(LoginInputDto loginDto) {
+
     }
 
     // Registers exchange users

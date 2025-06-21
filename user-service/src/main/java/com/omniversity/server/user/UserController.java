@@ -1,5 +1,8 @@
 package com.omniversity.server.user;
 
+import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
+import com.omniversity.server.user.dto.LoginInputDto;
+import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +68,15 @@ public class UserController {
             return new ResponseEntity<Boolean>(this.userService.checkUserIdTaken(id), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/login")
+    ResponseEntity loginUser(@RequestBody LoginInputDto loginDto) {
+        try {
+            return new ResponseEntity<>(this.userService.loginUser(loginDto));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
