@@ -1,5 +1,6 @@
 package com.omniversity.post_service.mapper.impl;
 
+import com.omniversity.post_service.exception.custom.InvalidInputException;
 import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.dto.input.PostCreateDto;
 import com.omniversity.post_service.dto.input.PostUpdateDto;
@@ -14,6 +15,20 @@ public class PostMapperImpl implements PostMapper {
 
     @Override
     public Post toEntity(PostCreateDto dto) {
+        // Basic null/empty checks
+        if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
+            throw new InvalidInputException("Post title cannot be empty.");
+        }
+        if (dto.getContent() == null || dto.getContent().trim().isEmpty()) {
+            throw new InvalidInputException("Post content cannot be empty.");
+        }
+        if (dto.getAuthorId() == null) {
+            throw new InvalidInputException("Author ID cannot be null.");
+        }
+        if (dto.getCommunityId() == null) {
+            throw new InvalidInputException("Community ID cannot be null.");
+        }
+
         Post post = new Post();
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());

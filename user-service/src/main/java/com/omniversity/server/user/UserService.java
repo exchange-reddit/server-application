@@ -1,5 +1,6 @@
 package com.omniversity.server.user;
 
+import com.omniversity.server.exception.ChangedPasswordSameException;
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
 import com.omniversity.server.service.Mapper.ExchangeUserMapper;
@@ -152,6 +153,11 @@ public class UserService {
             // Verify if the provided current password is correct
             if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
                 throw new WrongPasswordException("Provided password is incorrect");
+            }
+
+            // Verify if the new password is the same as the old one.
+            if (passwordValidator.checkPasswordMatch(changePasswordDto.newPassword(), user.getPasswordHash())) {
+                throw new ChangedPasswordSameException("New password cannot be the same as the old password.");
             }
 
             // Verify the strength of the new password
