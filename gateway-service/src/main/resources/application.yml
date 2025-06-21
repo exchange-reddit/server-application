@@ -4,17 +4,34 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service
-          uri: http://localhost:8081/ # Used to be localhost:8080 but modified to 8081 during merge conflict resolution
+        - id: user-service-login
+          uri: http://user-service:8081/ # Used to be localhost:8080 but modified to 8081 during merge conflict resolution
           predicates:
             - Path=/users/login
             - Method=POST
+        - id: user-service-register
+          uri: http://user-service:8081/
+          predicates:
+            - Path=/users/register/**
+            - Method=POST
+        - id: user-service-protected
+          uri: http://user-service:8081/
+          predicates:
+            - Path=/users/**
+            - Method=POST
           filters:
             - Authorization
-        - id: user-service-signup
-          uri: http://user-service:8080/
+        - id: verification-service-protected
+          uri: http://verification-service:8082/
           predicates:
-            - Path=/users/signup
+            - Path=/token/**
+            - Method=POST
+          filters:
+            - Authorization
+        - id: post-service-protected
+          uri: http://post-service:8083/
+          predicates:
+            - Path=/posts/register/**
             - Method=POST
           filters:
             - Authorization
