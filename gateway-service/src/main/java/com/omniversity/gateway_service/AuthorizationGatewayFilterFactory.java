@@ -29,18 +29,18 @@ public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFact
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            // 1. Check for Authorization header
+            // 1. Check for Authorization header ("Authorization")
             if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return onError(exchange, "No Authorization header", HttpStatus.UNAUTHORIZED);
             }
 
             String authorizationHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-            System.out.println("headers: "+ request.getHeaders().get(HttpHeaders.AUTHORIZATION));
+
             // Ensure the header starts with "Bearer "
             if (!authorizationHeader.startsWith("Bearer ")) {
                 return onError(exchange, "Invalid Authorization header format: Missing Bearer prefix", HttpStatus.UNAUTHORIZED);
             }
-            System.out.println("jwt: " + authorizationHeader);
+//            System.out.println("jwt: " + authorizationHeader);
 
             String jwt = authorizationHeader.substring(7); // Remove "Bearer " prefix
 
