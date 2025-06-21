@@ -1,8 +1,8 @@
 package com.omniversity.server.user;
 
 import com.omniversity.server.JwtTokenProvider;
-import com.omniversity.server.service.ExchangeUserMapper;
-import com.omniversity.server.service.ProspectiveUserMapper;
+import com.omniversity.server.service.Mapper.ExchangeUserMapper;
+import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
 import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
 import com.omniversity.server.user.dto.LoginInputDto;
 import com.omniversity.server.user.dto.LoginOutputDto;
@@ -10,9 +10,7 @@ import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.exception.ChangedPasswordSameException;
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
-import com.omniversity.server.service.Mapper.ExchangeUserMapper;
 import com.omniversity.server.service.PasswordValidator;
-import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
 import com.omniversity.server.service.Mapper.UpdateUserMapper;
 import com.omniversity.server.service.Mapper.UserResponse.UserResponseMapper;
 import com.omniversity.server.user.dto.*;
@@ -51,17 +49,20 @@ public class UserService {
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            \ExchangeUserMapper exchangeUserMapper,
+            ExchangeUserMapper exchangeUserMapper,
             ProspectiveUserMapper prospectiveUserMapper,
-            JwtTokenProvider jwtTokenProvider
+            UpdateUserMapper updateUserMapper,
+            UserResponseMapper userResponseMapper,
+            JwtTokenProvider jwtTokenProvider,
+            PasswordValidator passwordValidator
     ) {
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, ProspectiveUserMapper prospectiveUserMapper, PasswordValidator passwordValidator, UpdateUserMapper updateUserMapper, UserResponseMapper userResponseMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.exchangeUserMapper = exchangeUserMapper;
         this.prospectiveUserMapper = prospectiveUserMapper;
         this.updateUserMapper = updateUserMapper;
         this.userResponseMapper = userResponseMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.passwordValidator = passwordValidator;
     }
 
@@ -101,7 +102,7 @@ public class UserService {
 
     // Login user
     public LoginOutputDto loginUser(LoginInputDto loginDto) {
-
+        return null;
     }
 
     // Registers exchange users

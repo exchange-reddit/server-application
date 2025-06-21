@@ -74,7 +74,8 @@ public class UserController {
     @PostMapping("/login")
     ResponseEntity loginUser(@RequestBody LoginInputDto loginDto) {
         try {
-            return new ResponseEntity<>(this.userService.loginUser(loginDto));
+//            return new ResponseEntity<>(this.userService.loginUser(loginDto));
+            return null;
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
