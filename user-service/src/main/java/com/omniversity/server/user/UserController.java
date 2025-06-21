@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
@@ -35,33 +35,34 @@ public class UserController {
         return null;
     }
 
-    @GetMapping("/{id}")
-    ResponseEntity findById(@PathVariable Integer id) {
+    @GetMapping
+    ResponseEntity findById(@RequestHeader("X-User-Id") Integer userId) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(id));
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(userId));
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/profile/{id}")
-    ResponseEntity getUserProfile(@PathVariable Integer id) {
+    @GetMapping("/profile")
+    ResponseEntity getUserProfile(@RequestHeader("X-User-Id") Integer userId) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(id, 1));
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(userId, 1));
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/recommendation/{id}")
-    ResponseEntity getRecommendationProfile(@PathVariable Integer id) {
+    @GetMapping("/recommendation")
+    ResponseEntity getRecommendationProfile(@RequestHeader("X-User-Id") Integer userId) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(id, 2));
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getPublicUserInfo(userId, 2));
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // TODO: not sure if this method is still valid?
     @GetMapping("/checkID/{id}")
     ResponseEntity checkUserIdTaken(@PathVariable String id) {
         try {
@@ -74,8 +75,7 @@ public class UserController {
     @PostMapping("/login")
     ResponseEntity loginUser(@RequestBody LoginInputDto loginDto) {
         try {
-//            return new ResponseEntity<>(this.userService.loginUser(loginDto));
-            return null;
+            return new ResponseEntity<>(this.userService.loginUser(loginDto), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -99,20 +99,26 @@ public class UserController {
         }
     }
 
-    @PutMapping("/update/{id}")
-    ResponseEntity updateAccount(@PathVariable Integer id, @RequestBody UpdateAccountDto updateAccountDto) {
+    @PutMapping("/update")
+    ResponseEntity updateAccount(
+            @RequestHeader("X-User-Id") Integer userId,
+            @RequestBody UpdateAccountDto updateAccountDto
+    ) {
         try {
-            Object updateResponseDto = userService.updateAccount(updateAccountDto, id);
+            Object updateResponseDto = userService.updateAccount(updateAccountDto, userId);
             return ResponseEntity.status(HttpStatus.OK).body(updateResponseDto);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PatchMapping("/pwChange/{id}")
-    ResponseEntity changePW(@PathVariable Integer id, @RequestBody ChangePasswordDto changePasswordDto) {
+    @PatchMapping("/pwChange")
+    ResponseEntity changePW(
+            @RequestHeader("X-User-Id") Integer userId,
+            @RequestBody ChangePasswordDto changePasswordDto
+    ) {
         try {
-            userService.changePassword(changePasswordDto, id);
+            userService.changePassword(changePasswordDto, userId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

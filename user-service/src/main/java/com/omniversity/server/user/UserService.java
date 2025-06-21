@@ -19,12 +19,8 @@ import com.omniversity.server.user.entity.User;
 
 import com.omniversity.server.user.entity.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
-import java.util.Optional;
 
 import static com.omniversity.server.user.entity.UserType.*;
 
@@ -34,16 +30,14 @@ import static com.omniversity.server.user.entity.UserType.*;
  */
 @Service
 public class UserService {
-    @Value("http://localhost:8080")
-    private String baseUrl;
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
-    private ExchangeUserMapper exchangeUserMapper;
-    private ProspectiveUserMapper prospectiveUserMapper;
-    private JwtTokenProvider jwtTokenProvider;
-    private UpdateUserMapper updateUserMapper;
-    private UserResponseMapper userResponseMapper;
-    private PasswordValidator passwordValidator;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ExchangeUserMapper exchangeUserMapper;
+    private final ProspectiveUserMapper prospectiveUserMapper;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UpdateUserMapper updateUserMapper;
+    private final UserResponseMapper userResponseMapper;
+    private final PasswordValidator passwordValidator;
 
     @Autowired
     public UserService(
@@ -66,135 +60,130 @@ public class UserService {
         this.passwordValidator = passwordValidator;
     }
 
-    public User getUser(int id) throws NoSuchUserException{
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(id));
-
-        if (optionalUser.isEmpty()) {
-            throw new NoSuchUserException("The user with following Id was not found: " + id);
-        }
-
-        return optionalUser.get();
+    public User getUser(int id) throws NoSuchUserException {
+        return userRepository.findById((long) id)
+                .orElseThrow(() -> new NoSuchUserException("The user with ID " + id + " was not found"));
     }
 
     // An endpoint to return certain part of the user information
     public ReturnDto getPublicUserInfo(int id, int option) {
-        try {
-            User user = getUser(id);
+        User user = getUser(id);
 
-            switch (option) {
-                case (1):
-                    return userResponseMapper.toPublicUserProfileDto(user);
-                case (2):
-                    return userResponseMapper.toFriendSuggestionDto(user);
-                default:
-                    return null;
-            }
-        } catch (Exception e) {
-            throw e;
-        }
+        return switch (option) {
+            case (1) -> userResponseMapper.toPublicUserProfileDto(user);
+            case (2) -> userResponseMapper.toFriendSuggestionDto(user);
+            default -> null;
+        };
     }
 
 
     // Check whether the user id is taken or not
     public Boolean checkUserIdTaken(String userId) {
-        return Optional.ofNullable(userRepository.findByUserId(userId)).isPresent();
+        return userRepository.findByUserId(userId).isPresent();
     }
 
     // Login user
     public LoginOutputDto loginUser(LoginInputDto loginDto) {
-        return null;
+        // 1. Find user by email
+        User user = userRepository.findByHomeEmail(loginDto.getHomeUniEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        // 2. Check password
+        if (!passwordValidator.checkPasswordMatch(loginDto.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        // 3. Generate tokens
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+        // 4. Return output DTO
+        return new LoginOutputDto(
+                user.getHomeEmail(),
+                accessToken,
+                refreshToken
+        );
     }
 
     // Registers exchange users
-    public User registerExchangeUser(ExchangeUserRegistrationDto exchangeUserRegistrationDto) {
-
+    public User registerExchangeUser(ExchangeUserRegistrationDto dto) {
         // Check if the private email entered by the user has been taken by a pre-existing account or not.
-        if (Optional.ofNullable(userRepository.findByPrivateEmail(exchangeUserRegistrationDto.getPrivateEmail())).isPresent()) {
-            throw new RuntimeException("Error: You have already created an account with this email!");
+        if (userRepository.findByPrivateEmail(dto.getPrivateEmail()).isPresent()) {
+            throw new RuntimeException("Private email already registered.");
         }
-
         // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (Optional.ofNullable(userRepository.findByHomeEmail(exchangeUserRegistrationDto.getHomeEmail())).isPresent()) {
-            throw new RuntimeException("Error: This email has already been used by an another account for verification!");
+        if (userRepository.findByHomeEmail(dto.getHomeEmail()).isPresent()) {
+            throw new RuntimeException("Home email already in use.");
         }
-
         // Check if the exchange email that the user is trying to use to verify the account has been used or not.
-        if (Optional.ofNullable(userRepository.findByExchangeEmail(exchangeUserRegistrationDto.getExchangeEmail())).isPresent()) {
-            throw new RuntimeException("Error: This email has already been used by an other account for verification!");
+        if (userRepository.findByExchangeEmail(dto.getExchangeEmail()).isPresent()) {
+            throw new RuntimeException("Exchange email already in use.");
         }
-
         // Check if the user id has been taken by an another user or not.
-        if (checkUserIdTaken(exchangeUserRegistrationDto.getUserId())) {
-            throw new RuntimeException("Error: This username has already been used by an another user.");
+        if (checkUserIdTaken(dto.getUserId())) {
+            throw new RuntimeException("Username is already taken.");
         }
 
         // Using mapper library to avoid redundant code
-        User user = exchangeUserMapper.toEntity(exchangeUserRegistrationDto);
+        User user = exchangeUserMapper.toEntity(dto);
         user.setUserType(EXCHANGE_USER);
-        user.setPasswordHash(passwordEncoder.encode(exchangeUserRegistrationDto.getPassword()));
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         user.setActive(true);
 
         return userRepository.save(user);
     }
 
+
     // Registers prospective exchange student users
-    public User registerProspectiveUser(ProspectiveUserRegistrationDto prospectiveUserRegistrationDto) {
+    public User registerProspectiveUser(ProspectiveUserRegistrationDto dto) {
         // Check if the private email entered by the user has been taken by a pre-existing account or not.
-        if (Optional.ofNullable(userRepository.findByPrivateEmail(prospectiveUserRegistrationDto.privateEmail())).isPresent()) {
-            throw new RuntimeException("Error: You have already created an account with this email!");
+        if (userRepository.findByPrivateEmail(dto.privateEmail()).isPresent()) {
+            throw new RuntimeException("Private email already registered.");
         }
-
         // Check if the home email that the user is trying to use to verify the account has been used or not.
-        if (Optional.ofNullable(userRepository.findByHomeEmail(prospectiveUserRegistrationDto.homeEmail())).isPresent()) {
-            throw new RuntimeException("Error: This email has already been used by an another account for verification!");
+        if (userRepository.findByHomeEmail(dto.homeEmail()).isPresent()) {
+            throw new RuntimeException("Home email already in use.");
         }
-
         // Check if the user id has been taken by an another user or not.
-        if (checkUserIdTaken(prospectiveUserRegistrationDto.userId())) {
-            throw new RuntimeException("Error: This username has already been used by an another user.");
+        if (checkUserIdTaken(dto.userId())) {
+            throw new RuntimeException("Username is already taken.");
         }
 
-        User user = prospectiveUserMapper.toEntity(prospectiveUserRegistrationDto);
-
-        if (!passwordValidator.validatePasswordStrength(prospectiveUserRegistrationDto.password())) {
-            throw new RuntimeException("Error: The provided password does not meet the security requirement.");
+        if (!passwordValidator.validatePasswordStrength(dto.password())) {
+            throw new RuntimeException("Password does not meet security requirements.");
         }
 
-        user.setPasswordHash(passwordEncoder.encode(prospectiveUserRegistrationDto.password()));
+        User user = prospectiveUserMapper.toEntity(dto);
         user.setUserType(PROSPECTIVE_USER);
+        user.setPasswordHash(passwordEncoder.encode(dto.password()));
 
         return userRepository.save(user);
-
     }
 
+
     public void changePassword(ChangePasswordDto changePasswordDto, int id) {
-        try {
-            User user = getUser(id);
+        User user = getUser(id);
 
-            // Verify if the provided current password is correct
-            if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
-                throw new WrongPasswordException("Provided password is incorrect");
-            }
-
-            // Verify if the new password is the same as the old one.
-            if (passwordValidator.checkPasswordMatch(changePasswordDto.newPassword(), user.getPasswordHash())) {
-                throw new ChangedPasswordSameException("New password cannot be the same as the old password.");
-            }
-
-            // Verify the strength of the new password
-            if (!passwordValidator.validatePasswordStrength(changePasswordDto.newPassword())) {
-                throw new RuntimeException("Password must be secure");
-            }
-
-            // TODO: Choice of email (Between home, exchange, and private)
-
-            // Set new password for the user
-            user.setPasswordHash(passwordEncoder.encode(changePasswordDto.newPassword()));
-            userRepository.save(user);
-
-        } catch (Exception e) {
-            throw e;
+        // Verify if the provided current password is correct
+        if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
+            throw new WrongPasswordException("Provided password is incorrect");
         }
+
+        // Verify if the new password is the same as the old one.
+        if (passwordValidator.checkPasswordMatch(changePasswordDto.newPassword(), user.getPasswordHash())) {
+            throw new ChangedPasswordSameException("New password cannot be the same as the old password.");
+        }
+
+        // Verify the strength of the new password
+        if (!passwordValidator.validatePasswordStrength(changePasswordDto.newPassword())) {
+            throw new RuntimeException("Password must be secure");
+        }
+
+        // TODO: Choice of email (Between home, exchange, and private)
+
+        // Set new password for the user
+        user.setPasswordHash(passwordEncoder.encode(changePasswordDto.newPassword()));
+        userRepository.save(user);
     }
 
     public Object updateAccount(UpdateAccountDto updateAccountDto, int id) {

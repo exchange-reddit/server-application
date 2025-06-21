@@ -10,7 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginOutputDto {
-    private Long userId;
     private String email;
     private String accessToken;
     private String refreshToken;
