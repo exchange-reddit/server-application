@@ -1,4 +1,4 @@
-package com.omniversity.post_service.exception;
+package com.omniversity.post_service.exception.custom;
 
 public class PostNotFoundException extends RuntimeException {
     public PostNotFoundException(Long postId) {
