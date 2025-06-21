@@ -1,5 +1,6 @@
 package com.omniversity.server.user.dto;
 
+import com.omniversity.server.user.entity.Program;
 import com.omniversity.server.user.entity.University;
 import com.omniversity.server.user.entity.UserType;
 import jakarta.validation.constraints.*;
@@ -33,6 +34,11 @@ public record ProspectiveUserRegistrationDto(
 
         @NotBlank(message = "Your date of birth must be provided")
         Date dateOfBirth,
+
+        @NotBlank(message = "Your program must be provided")
+        Program program,
+
+        String profilePicture,
 
         Boolean isAdmin
         ){}
