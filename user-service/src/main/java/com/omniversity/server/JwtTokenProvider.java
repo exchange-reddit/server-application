@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 
+@Component
 public class JwtTokenProvider {
     private final long accessTokenExpirationMillis = 3 * 60 * 60 * 1000; // 3 hours
     private final long refreshTokenExpirationMillis = 14L * 24 * 60 * 60 * 1000; // 14 days
@@ -22,7 +23,7 @@ public class JwtTokenProvider {
     // === TOKEN GENERATION ===
 
     public String generateAccessToken(User user) {
-        return generateToken(user.getUserId(), accessTokenExpirationMillis);
+        return generateToken("" + user.getId(), accessTokenExpirationMillis);
     }
 
     public String generateRefreshToken(User user) {
