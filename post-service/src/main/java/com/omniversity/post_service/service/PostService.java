@@ -5,7 +5,8 @@ import com.omniversity.post_service.dto.input.PostUpdateDto;
 import com.omniversity.post_service.dto.output.PostListItemDto;
 import com.omniversity.post_service.dto.output.PostResponseDto;
 import com.omniversity.post_service.entity.Post;
-import com.omniversity.post_service.exception.PostNotFoundException;
+import com.omniversity.post_service.exception.custom.InvalidInputException;
+import com.omniversity.post_service.exception.custom.PostNotFoundException;
 import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.repository.PostRepository;
 import com.omniversity.post_service.service.storage.StorageService;
@@ -43,7 +44,8 @@ public class PostService {
         return dto;
     }
 
-    public PostResponseDto createPost(PostCreateDto createDto, MultipartFile file) throws IOException {
+    public PostResponseDto createPost(PostCreateDto createDto, MultipartFile file) throws InvalidInputException {
+        // .toEntity() throws InvalidInputException when there are empty fields
         Post post = postMapper.toEntity(createDto);
         // Store file if present
         if (file != null && !file.isEmpty()) {
@@ -55,7 +57,7 @@ public class PostService {
         return postMapper.toResponseDto(savedPost);
     }
 
-    public PostResponseDto updatePost(Long postId, PostUpdateDto updateDto, MultipartFile file) throws PostNotFoundException, IOException {
+    public PostResponseDto updatePost(Long postId, PostUpdateDto updateDto, MultipartFile file) throws PostNotFoundException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
