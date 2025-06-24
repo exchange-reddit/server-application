@@ -4,6 +4,7 @@ import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
 import com.omniversity.server.user.dto.LoginInputDto;
 import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.user.dto.*;
+import com.omniversity.server.user.dto.request.RefreshTokenRequestDto;
 import com.omniversity.server.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * TODO:
- * - Guard condition to ensure user verification prior to registration
- * - Authentication method integration
- * - Add user posts and communities under account
- * - Function to secure the grace period of 2 weeks
+ * TODO: Guard condition to ensure user verification prior to registration
+ * TODO: Add user posts and communities under account
+ * TODO: Function to secure the grace period of 2 weeks
  */
 @RestController
 @RequestMapping("/users")
@@ -78,6 +77,25 @@ public class UserController {
             return new ResponseEntity<>(this.userService.loginUser(loginDto), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Refreshes access and refresh tokens. To be used when access token expires.
+     * When only the access token is expired, both tokens are renewed and returned.
+     * When both are expired, the method should reject, which should prompt the client to force logout.
+     * By allowing both the access and refresh tokens to be renewed, we can expect for less force-logouts,
+     *   leading to better ux.
+     *
+     * @param refreshTokenRequestDto
+     * @return
+     */
+    @PostMapping("/refresh")
+    ResponseEntity refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
+        try {
+            return new ResponseEntity<>(this.userService.refreshToken(refreshTokenRequestDto), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 

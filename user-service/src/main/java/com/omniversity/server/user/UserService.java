@@ -14,6 +14,8 @@ import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.service.Mapper.UpdateUserMapper;
 import com.omniversity.server.service.Mapper.UserResponse.UserResponseMapper;
 import com.omniversity.server.user.dto.*;
+import com.omniversity.server.user.dto.request.RefreshTokenRequestDto;
+import com.omniversity.server.user.dto.response.RefreshTokenResponseDto;
 import com.omniversity.server.user.dto.response.ReturnDto;
 import com.omniversity.server.user.entity.User;
 
@@ -23,6 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.omniversity.server.user.entity.UserType.*;
+
+import java.util.Optional;
 
 /**
  * TODO
@@ -105,6 +109,38 @@ public class UserService {
         );
     }
 
+    public RefreshTokenResponseDto refreshToken(RefreshTokenRequestDto dto) {
+        String accessToken = dto.getAccessToken();
+        String refreshToken = dto.getRefreshToken();
+
+        // 1. Extract subject (userId) from *expired or valid* access token
+        String userId = jwtTokenProvider.getSubject(accessToken); // throws if completely invalid
+
+        // 2. Validate refresh token
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            if (jwtTokenProvider.isTokenExpired(refreshToken)) {
+                throw new RuntimeException("Refresh token is expired.");
+            }
+            throw new RuntimeException("Invalid refresh token.");
+        }
+
+        // 3. Extract subject from refresh token and compare
+        String refreshSubject = jwtTokenProvider.getSubject(refreshToken);
+        if (!refreshSubject.equals(userId)) {
+            throw new RuntimeException("Token subjects do not match: accessToken: " + userId + " refreshToken: " + refreshSubject);
+        }
+
+        // 4. Load user from DB to generate new tokens
+        User user = userRepository.findById(Long.parseLong(refreshSubject))
+                .orElseThrow(() -> new NoSuchUserException("The user with ID " + userId + " was not found"));
+
+        // 5. Generate new tokens
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+        return new RefreshTokenResponseDto(newAccessToken, newRefreshToken);
+
+    }
     // Registers exchange users
     public User registerExchangeUser(ExchangeUserRegistrationDto dto) {
         // Check if the private email entered by the user has been taken by a pre-existing account or not.

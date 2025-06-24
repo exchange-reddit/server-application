@@ -1,6 +1,7 @@
 package com.omniversity.server;
 
 import com.omniversity.server.user.entity.User;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
@@ -10,8 +11,13 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+    // Comment these out to test expiration and refresh logic
     private final long accessTokenExpirationMillis = 3 * 60 * 60 * 1000; // 3 hours
     private final long refreshTokenExpirationMillis = 14L * 24 * 60 * 60 * 1000; // 14 days
+
+    // Uncomment these to test expiration and refresh logic
+//    private final long accessTokenExpirationMillis = 3 * 1000; // 3 seconds
+//    private final long refreshTokenExpirationMillis = 30 * 1000; // 30 seconds
 
     private final SecretKey jwtSigningKey;
 
@@ -27,7 +33,7 @@ public class JwtTokenProvider {
     }
 
     public String generateRefreshToken(User user) {
-        return generateToken(user.getUserId(), refreshTokenExpirationMillis);
+        return generateToken("" + user.getId(), refreshTokenExpirationMillis);
     }
 
     private String generateToken(String subject, long expirationMillis) {
@@ -56,16 +62,32 @@ public class JwtTokenProvider {
         }
     }
 
+    // check token expired
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = getExpiration(token);
+            return expiration.before(new Date());
+        } catch (JwtException e) {
+            return true; // treat invalid as expired for safety
+        }
+    }
+
     // === PARSING TOKEN CLAIMS ===
 
     public String getSubject(String token) {
-        return Jwts.parser()
-                .verifyWith(jwtSigningKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        try {
+            return Jwts.parser()
+                    .verifyWith(jwtSigningKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        } catch (ExpiredJwtException ex) {
+            // Extract subject from expired token
+            return ex.getClaims().getSubject();
+        }
     }
+
 
     public Date getExpiration(String token) {
         return Jwts.parser()

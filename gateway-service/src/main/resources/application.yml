@@ -14,6 +14,11 @@ spring:
           predicates:
             - Path=/users/register/**
             - Method=POST
+        - id: user-service-refresh
+          uri: http://user-service:8081/
+          predicates:
+            - Path=/users/refresh
+            - Method=POST
         - id: user-service-protected
           uri: http://user-service:8081/
           predicates:
