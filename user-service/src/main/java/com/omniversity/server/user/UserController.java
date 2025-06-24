@@ -1,12 +1,17 @@
 package com.omniversity.server.user;
 
+import com.omniversity.server.log.LogService;
+import com.omniversity.server.log.dto.accountDeleteLogDto;
+import com.omniversity.server.log.dto.pwChangeLogDto;
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -21,10 +26,12 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
+    private LogService logService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, LogService logService) {
         this.userService = userService;
+        this.logService = logService;
     }
 
     @GetMapping("/all")
@@ -97,26 +104,35 @@ public class UserController {
     }
 
     @PatchMapping("/pwChange/{id}")
-    ResponseEntity changePW(@PathVariable Integer id, @RequestBody ChangePasswordDto changePasswordDto) {
+    ResponseEntity changePW(@PathVariable Integer id, @RequestBody ChangePasswordDto changePasswordDto, HttpServletRequest request) {
         try {
-            userService.changePassword(changePasswordDto, id);
+            // Please check the method changePassword() for further information
+            pwChangeLogDto dto = userService.changePassword(changePasswordDto, id);
+            // Log pw change request information (The dto here is the result of the changePassword method, and the request is the entire request sent by the user)
+            logService.logPWChange(dto, request);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/delete")
-    ResponseEntity deleteUserAccount(@RequestBody DeleteUserDto deleteUserDto) {
+    @PatchMapping("/nationalityChange/{id}")
+    ResponseEntity changeNationality(@PathVariable Integer id, @RequestBody ChangeNationalityDto dto) {
         try {
-            Boolean result = this.userService.deleteUser(deleteUserDto);
+            userService.changeNationality(id, dto);
+            return ResponseEntity.status(HttpStatus.OK).body("Your nationality has been changed successfully");
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-            if (result) {
-                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Your account has been successfully deleted!");
-            }
-            else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An unknown error occurred.");
-            }
+    @DeleteMapping("/delete")
+    ResponseEntity deleteUserAccount(@RequestBody DeleteUserDto deleteUserDto, HttpServletRequest request) {
+        try {
+            accountDeleteLogDto dto = this.userService.deleteUser(deleteUserDto);
+            // Log account deletion information (The dto here is the result of the deleteUser method)
+            logService.logAccountDeletion(dto, request);
+            return ResponseEntity.status(200).body(String.format("Account ID %s has been terminated as of %s", dto.updateUser(), LocalDate.now()));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

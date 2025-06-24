@@ -1,8 +1,6 @@
 package com.omniversity.server.user.dto;
 
-import com.omniversity.server.user.entity.Program;
-import com.omniversity.server.user.entity.University;
-import com.omniversity.server.user.entity.UserType;
+import com.omniversity.server.user.entity.*;
 import jakarta.validation.constraints.*;
 
 
@@ -14,6 +12,9 @@ public record ProspectiveUserRegistrationDto(
         @NotBlank(message = "Name cannot be blank")
         String name,
 
+        @NotBlank(message = "Gender cannot be blank")
+        Gender gender,
+
         @NotBlank(message = "Private email must be provided")
         @Email(message = "Email should be valid")
         String privateEmail,
@@ -24,6 +25,10 @@ public record ProspectiveUserRegistrationDto(
 
         @NotBlank(message = "You must provide your home university")
         University homeUni,
+
+        Country nationality,
+
+        Language preferredLanguage,
 
         @NotBlank(message = "Password must be provided")
         @Size(min = 8, message = "Password must be at least 8 characters long")
@@ -38,7 +43,6 @@ public record ProspectiveUserRegistrationDto(
         @NotBlank(message = "Your program must be provided")
         Program program,
 
-        String profilePicture,
+        String profilePicture
 
-        Boolean isAdmin
         ){}

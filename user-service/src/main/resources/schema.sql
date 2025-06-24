@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS "users" (
     id INT PRIMARY KEY NOT NULL,
     name VARCHAR(50) NOT NULL,
+    gender VARCHAR(100) NOT NULL,
     private_email VARCHAR(100) NOT NULL UNIQUE,
     private_email_verified BIT NOT NULL,
     password_hash VARCHAR(100) NOT NULL,
@@ -19,5 +20,16 @@ CREATE TABLE IF NOT EXISTS "users" (
     exchange_end DATE,
     preferred_language VARCHAR(50),
     profile_picture VARCHAR(8192),
+    registration_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     is_active BIT
+);
+
+CREATE TABLE IF NOT EXISTS "logs" (
+    id INT PRIMARY KEY NOT NULL,
+    auditType VARCHAR(50) NOT NULL DEFAULT 'DEFAULT',
+    auditDate DATE NOT NULL,
+    updateUser VARCHAR(100) NOT NULL,
+    updateIP VARCHAR(100) NOT NULL,
+    updateContent TEXT NOT NULL,
+    auditResult BIT NOT NULL
 );
