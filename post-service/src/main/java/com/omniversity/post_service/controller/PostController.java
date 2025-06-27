@@ -48,6 +48,7 @@ public class PostController {
         return ResponseEntity.ok(savedPostDto);
     }
 
+
     /**
      * Returns list of all posts with full information. This is a longer version of /all-posts-shorter.
      *

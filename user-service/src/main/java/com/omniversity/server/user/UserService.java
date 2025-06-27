@@ -1,5 +1,7 @@
 package com.omniversity.server.user;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.omniversity.server.JwtTokenProvider;
 import com.omniversity.server.service.Mapper.ExchangeUserMapper;
 import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
@@ -17,6 +19,7 @@ import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.dto.request.RefreshTokenRequestDto;
 import com.omniversity.server.user.dto.response.RefreshTokenResponseDto;
 import com.omniversity.server.user.dto.response.ReturnDto;
+import com.omniversity.server.user.dto.response.jwt.PublicKeyDto;
 import com.omniversity.server.user.entity.User;
 
 import com.omniversity.server.user.entity.UserType;
@@ -24,9 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.omniversity.server.JwtConfig.publicKey;
 import static com.omniversity.server.user.entity.UserType.*;
 
-import java.util.Optional;
+import java.security.interfaces.RSAPublicKey;
 
 /**
  * TODO
@@ -86,8 +90,16 @@ public class UserService {
         return userRepository.findByUserId(userId).isPresent();
     }
 
+    // provide jwt public key
+    public PublicKeyDto getPublicKey() throws Exception {
+        RSAKey key = new RSAKey.Builder((RSAPublicKey) publicKey())
+                .keyID("gateway-key")
+                .build();
+        return new PublicKeyDto(new JWKSet(key).toJSONObject());
+    }
+
     // Login user
-    public LoginOutputDto loginUser(LoginInputDto loginDto) {
+    public LoginOutputDto loginUser(LoginInputDto loginDto) throws Exception {
         // 1. Find user by email
         User user = userRepository.findByHomeEmail(loginDto.getHomeUniEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
@@ -96,10 +108,21 @@ public class UserService {
         if (!passwordValidator.checkPasswordMatch(loginDto.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Invalid credentials");
         }
-
+        String accessToken;
+        String refreshToken;
         // 3. Generate tokens
-        String accessToken = jwtTokenProvider.generateAccessToken(user);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+        try {
+            accessToken = jwtTokenProvider.generateAccessToken(user);
+        } catch(Exception e) {
+            throw new Exception("Error generating access token: " + e.getMessage());
+        }
+
+        try {
+            refreshToken = jwtTokenProvider.generateRefreshToken(user);
+        } catch(Exception e) {
+            throw new Exception("Error generating refresh token: " + e.getMessage());
+        }
+
 
         // 4. Return output DTO
         return new LoginOutputDto(
@@ -109,7 +132,7 @@ public class UserService {
         );
     }
 
-    public RefreshTokenResponseDto refreshToken(RefreshTokenRequestDto dto) {
+    public RefreshTokenResponseDto refreshToken(RefreshTokenRequestDto dto) throws Exception {
         String accessToken = dto.getAccessToken();
         String refreshToken = dto.getRefreshToken();
 
@@ -135,8 +158,19 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchUserException("The user with ID " + userId + " was not found"));
 
         // 5. Generate new tokens
-        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+        String newAccessToken;
+        String newRefreshToken;
+        try {
+            newAccessToken = jwtTokenProvider.generateAccessToken(user);
+        } catch(Exception e) {
+            throw new Exception("Error generating access token: " + e.getMessage());
+        }
+
+        try {
+            newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+        } catch(Exception e) {
+            throw new Exception("Error generating refresh token: " + e.getMessage());
+        }
 
         return new RefreshTokenResponseDto(newAccessToken, newRefreshToken);
 

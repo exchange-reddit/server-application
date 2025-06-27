@@ -71,6 +71,19 @@ public class UserController {
         }
     }
 
+    /**
+     * Returns public key to be used by cloud gateway to verify the jwt tokens
+     *
+     */
+    @GetMapping("/.well-known/jwks.json")
+    ResponseEntity getKey() {
+        try {
+            return new ResponseEntity<>(this.userService.getPublicKey(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/login")
     ResponseEntity loginUser(@RequestBody LoginInputDto loginDto) {
         try {
@@ -79,6 +92,13 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.ok("Logged out.");
+    }
+
 
     /**
      * Refreshes access and refresh tokens. To be used when access token expires.

@@ -1,26 +1,32 @@
 spring:
   application:
     name: gateway-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://user-service # to confirm iss claim in jwt
+          jwk-set-uri: http://user-service:8080/users/.well-known/jwks.json # to get public key
   cloud:
     gateway:
       routes:
         - id: user-service-login
-          uri: http://user-service:8081/ # Used to be localhost:8080 but modified to 8081 during merge conflict resolution
+          uri: http://user-service:8080/
           predicates:
             - Path=/users/login
             - Method=POST
         - id: user-service-register
-          uri: http://user-service:8081/
+          uri: http://user-service:8080/
           predicates:
             - Path=/users/register/**
             - Method=POST
         - id: user-service-refresh
-          uri: http://user-service:8081/
+          uri: http://user-service:8080/
           predicates:
             - Path=/users/refresh
             - Method=POST
         - id: user-service-protected
-          uri: http://user-service:8081/
+          uri: http://user-service:8080/
           predicates:
             - Path=/users/**
           filters:

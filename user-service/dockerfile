@@ -12,6 +12,8 @@ COPY gradle gradle
 COPY build.gradle ./
 COPY src ./src
 
+RUN ./gradlew
+
 # Build the Spring Boot application
 RUN ./gradlew clean build -x test
 
@@ -23,6 +25,8 @@ WORKDIR /app
 
 # Copy the built JAR from the previous stage
 COPY --from=build /app/build/libs/*.jar user-service.jar
+COPY --from=build /app/src/main/resources/private.pem /app/private.pem
+COPY --from=build /app/src/main/resources/public.pem /app/public.pem
 
 # Expose the application port
 EXPOSE 8081
