@@ -37,19 +37,21 @@ public class JwtTokenProvider {
     // === TOKEN GENERATION ===
 
     public String generateAccessToken(User user) throws Exception {
-        return generateToken("" + user.getId(), accessTokenExpirationMillis);
+        return generateToken(user, accessTokenExpirationMillis);
     }
 
     public String generateRefreshToken(User user) throws Exception {
-        return generateToken("" + user.getId(), refreshTokenExpirationMillis);
+        return generateToken(user, refreshTokenExpirationMillis);
     }
 
-    private String generateToken(String subject, long expirationMillis) throws Exception {
+    private String generateToken(User user, long expirationMillis) throws Exception {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMillis);
-
+        String subject = "" + user.getId();
+        String userType = "" + user.getUserType();
         return Jwts.builder()
                 .subject(subject)
+                .claim("userType", userType)
                 .issuedAt(now)
                 .expiration(expiry)
                 .issuer(userServiceUrl)
