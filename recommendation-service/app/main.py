@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel # Import BaseModel for request body validation
+from pydantic import BaseModel, Field # Import BaseModel for request body validation
 from app.services.recommendation_service import RecommendationService
 from app.db import Neo4jConnection
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import logging
 
 # Configure logging
@@ -25,6 +25,27 @@ class UserRegistrationRequest(BaseModel):
     """Model for user registration data validation."""
     user_id: str
     name: str
+
+class FollowRequest(BaseModel):
+    follower_id: str
+    followed_id: str
+
+# Based on User.java entity
+class UserEntity(BaseModel):
+    userId: str = Field(..., alias="userId")
+    name: str
+    homeUni: Optional[str] = None
+    exchangeUni: Optional[str] = None
+    nationality: Optional[str] = None
+    preferredLanguage: Optional[str] = None
+    # Add other fields as needed, keeping them optional
+    userType: Optional[str] = None
+    privateEmail: Optional[str] = None
+    homeEmail: Optional[str] = None
+    
+    class Config:
+        allow_population_by_field_name = True
+
 app = FastAPI(
     title="Friend Recommendation Microservice",
     description="Provides friend recommendations based on user relationships and other criteria.",
@@ -74,6 +95,9 @@ async def shutdown_event():
 async def read_root():
     return {"message": "Friend Recommendation Service is running!"}
 
+# http://Omniversity/server/recommendation-service/recommendations/user_id
+# http method
+
 @app.get("/recommendations/{user_id}", response_model=List[Dict[str, Any]])
 async def get_friend_recommendations(
     user_id: str,
@@ -94,97 +118,80 @@ async def get_friend_recommendations(
 
 @app.post("/register-user", status_code=status.HTTP_201_CREATED)
 async def register_user(
-    user_id: str, 
-    name: str, 
+    user_data: UserEntity, 
     service: RecommendationService = Depends(get_recommendation_service)
 ): 
-    """Registers a new user in the recommendation system. 
-
-    Args:
-        user_id (str): _description_
-        name (str): _description_
-        service (RecommendationService, optional): _description_. Defaults to Depends(get_recommendation_service).
-
-    Raises:
-        HTTPException: _description_
-        HTTPException: _description_
-        HTTPException: _description_
-        HTTPException: _description_
-
-    Returns:
-        _type_: _description_
     """
-    if not user_id or not name: 
-        raise HTTPException(status_code=400, detail="User ID and name are required.")
-    
-    success = service.add_user(user_id, name)
+    Registers a new user based on the User.java entity structure.
+    """
+    # Pydantic model is converted to dict and passed to the service
+    success = service.add_user(user_data.dict(by_alias=True))
     if success:
-        return {"message": "User registered successfully.", "user_id": user_id, "name": name}
+        return {"message": "User registered successfully.", "userId": user_data.userId}
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User with ID {user_id} already exists."
+            detail=f"User with ID {user_data.userId} already exists or registration failed."
         )
         
-@app.post("/friends", status_code=status.HTTP_201_CREATED)
-async def add_friendship(
-    request: FriendshipRequest,
+@app.post("/follows", status_code=status.HTTP_201_CREATED)
+async def add_follow(
+    request: FollowRequest,
     service: RecommendationService = Depends(get_recommendation_service)
 ):
     """
-    Adds a new bi-directional friendship between two users.
-    This event triggers potential recalculations for recommendations.
+    Adds a new directional follow relationship from one user to another.
     """
-    user_id1 = request.user_id1
-    user_id2 = request.user_id2
+    follower_id = request.follower_id
+    followed_id = request.followed_id
 
-    if not user_id1 or not user_id2:
-        raise HTTPException(status_code=400, detail="Both user IDs are required.")
-    if user_id1 == user_id2:
-        raise HTTPException(status_code=400, detail="A user cannot be friends with themselves.")
+    if not follower_id or not followed_id:
+        raise HTTPException(status_code=400, detail="Both follower_id and followed_id are required.")
+    if follower_id == followed_id:
+        raise HTTPException(status_code=400, detail="A user cannot follow themselves.")
 
     try:
-        success = service.add_friendship(user_id1, user_id2)
+        success = service.add_follow_relationship(follower_id, followed_id)
         if success:
-            logger.info(f"Friendship added between {user_id1} and {user_id2}. Triggering recommendation recalculation if needed.")
-            # In a real-world scenario, you might trigger an asynchronous task here
-            # to re-evaluate recommendations for user_id1 and user_id2.
-            # For now, it's a conceptual "trigger".
-            return {"message": "Friendship added successfully.", "user_id1": user_id1, "user_id2": user_id2}
+            logger.info(f"User {follower_id} now follows {followed_id}.")
+            return {"message": "User followed successfully.", "follower_id": follower_id, "followed_id": followed_id}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="One or both users not found.")
     except Exception as e:
-        logger.error(f"Error adding friendship between {user_id1} and {user_id2}: {e}")
+        logger.error(f"Error adding follow relationship between {follower_id} and {followed_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to add friendship: {e}"
+            detail=f"Failed to add follow relationship: {e}"
         )
 
-@app.delete("/friends", status_code=status.HTTP_201_CREATED)
-async def remove_friendship(
-    request: DeleteFriendshipRequest,
+@app.delete("/follows", status_code=status.HTTP_200_OK)
+async def remove_follow(
+    request: FollowRequest,
     service: RecommendationService = Depends(get_recommendation_service)
 ):
     """
-    Deletes friendship between two users.
-    This event triggers potential recalculations for recommendations.
+    Deletes a follow relationship from one user to another.
     """
-    user_id1 = request.user_id1
-    user_id2 = request.user_id2
+    follower_id = request.follower_id
+    followed_id = request.followed_id
 
-    if not user_id1 or not user_id2:
-        raise HTTPException(status_code=400, detail="Both user IDs are required.")
-    if user_id1 == user_id2:
-        raise HTTPException(status_code=400, detail="A user cannot be friends with themselves.")
+    if not follower_id or not followed_id:
+        raise HTTPException(status_code=400, detail="Both follower_id and followed_id are required.")
+    if follower_id == followed_id:
+        raise HTTPException(status_code=400, detail="Invalid operation for a user on themselves.")
 
     try:
-        success = service.remove_friendship(user_id1, user_id2)
+        success = service.remove_follow_relationship(follower_id, followed_id)
         if success:
-            logger.info(f"Friendship deleted between {user_id1} and {user_id2}. Triggering recommendation recalculation if needed.")
-            return {"message": "Friendship deleted successfully.", "user_id1": user_id1, "user_id2": user_id2}
+            logger.info(f"User {follower_id} has unfollowed {followed_id}.")
+            return {"message": "User unfollowed successfully.", "follower_id": follower_id, "followed_id": followed_id}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Follow relationship not found.")
     except Exception as e:
-        logger.error(f"Error deleting friendship between {user_id1} and {user_id2}: {e}")
+        logger.error(f"Error deleting follow relationship from {follower_id} to {followed_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete friendship: {e}"
+            detail=f"Failed to delete follow relationship: {e}"
         )
 
 
