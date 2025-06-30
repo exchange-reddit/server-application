@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field # Import BaseModel for request body validation
 from app.services.recommendation_service import RecommendationService
+from app.config import RecommendationConfig
 from app.db import Neo4jConnection
 from typing import List, Dict, Any, Optional
 import logging
@@ -30,14 +31,18 @@ class FollowRequest(BaseModel):
     follower_id: str
     followed_id: str
 
-# Based on User.java entity
+# Based on updated User.java entity
 class UserEntity(BaseModel):
     userId: str = Field(..., alias="userId")
     name: str
     homeUni: Optional[str] = None
     exchangeUni: Optional[str] = None
     nationality: Optional[str] = None
-    preferredLanguage: Optional[str] = None
+    gender: Optional[str] = None  # MALE or FEMALE
+    department: Optional[str] = None
+    preferredLanguage1: Optional[str] = None  # 1st priority language
+    preferredLanguage2: Optional[str] = None  # 2nd priority language
+    preferredLanguage3: Optional[str] = None  # 3rd priority language
     # Add other fields as needed, keeping them optional
     userType: Optional[str] = None
     privateEmail: Optional[str] = None
@@ -45,6 +50,10 @@ class UserEntity(BaseModel):
     
     class Config:
         allow_population_by_field_name = True
+
+class ConfigUpdateRequest(BaseModel):
+    score_weights: Optional[List[float]] = None
+    language_weights: Optional[List[float]] = None
 
 app = FastAPI(
     title="Friend Recommendation Microservice",
@@ -132,6 +141,57 @@ async def register_user(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"User with ID {user_data.userId} already exists or registration failed."
+        )
+        
+@app.get("/config", status_code=status.HTTP_200_OK)
+async def get_recommendation_config():
+    """
+    Returns the current recommendation configuration parameters.
+    """
+    return {
+        "score_weights": RecommendationConfig.get_score_weights(),
+        "language_weights": RecommendationConfig.get_language_weights(),
+        "score_component_names": RecommendationConfig.SCORE_COMPONENT_NAMES
+    }
+
+@app.put("/config", status_code=status.HTTP_200_OK)
+async def update_recommendation_config(request: ConfigUpdateRequest):
+    """
+    Updates the recommendation configuration parameters.
+    """
+    try:
+        if request.score_weights:
+            RecommendationConfig.update_score_weights(request.score_weights)
+        
+        if request.language_weights:
+            RecommendationConfig.update_language_weights(request.language_weights)
+        
+        return {
+            "message": "Configuration updated successfully",
+            "score_weights": RecommendationConfig.get_score_weights(),
+            "language_weights": RecommendationConfig.get_language_weights()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/remove-user/{user_id}", status_code=status.HTTP_200_OK)
+async def remove_user(
+    user_id: str,
+    service: RecommendationService = Depends(get_recommendation_service)
+):
+    """
+    Removes a user and all their relationships from the recommendation system.
+    """
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID is required.")
+    
+    success = service.remove_user(user_id)
+    if success:
+        return {"message": "User removed successfully.", "userId": user_id}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found or removal failed."
         )
         
 @app.post("/follows", status_code=status.HTTP_201_CREATED)

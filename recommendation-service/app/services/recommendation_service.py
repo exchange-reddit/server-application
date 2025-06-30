@@ -1,5 +1,6 @@
 from app.db import Neo4jConnection
 from py2neo import Node
+from app.config import RecommendationConfig
 from typing import List, Dict, Any
 import logging
 
@@ -36,6 +37,44 @@ class RecommendationService:
             return True
         except Exception as e:
             logger.error(f"An error occurred during user registration for {user_id}: {e}")
+            return False
+        
+    def remove_user(self, user_id: str) -> bool:
+        """
+        Removes a user and all their relationships from the graph database.
+        Returns True if the user was successfully deleted, False if user not found or error occurs.
+        """
+        if not user_id:
+            logger.error("User removal failed: 'user_id' is missing.")
+            return False
+
+        logger.info(f"Attempting to remove user {user_id}")
+        
+        try:
+            # Check if user exists first
+            existing_user = self.graph.nodes.match("User", userId=user_id).first()
+            if not existing_user:
+                logger.warning(f"User removal failed: User with ID {user_id} does not exist.")
+                return False
+            
+            # Delete user and all their relationships using DETACH DELETE
+            query = """
+            MATCH (user:User {userId: $user_id})
+            DETACH DELETE user
+            RETURN count(user) AS deletedCount
+            """
+            
+            result = self.graph.run(query, user_id=user_id).evaluate()
+            
+            if result > 0:
+                logger.info(f"User {user_id} and all their relationships deleted successfully.")
+                return True
+            else:
+                logger.error(f"Failed to delete user {user_id}.")
+                return False
+                
+        except Exception as e:
+            logger.error(f"An error occurred during user removal for {user_id}: {e}")
             return False
         
     def add_follow_relationship(self, follower_id: str, followed_id: str) -> bool:
@@ -104,26 +143,82 @@ class RecommendationService:
     def get_recommended_friends(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
         Calculates a recommendation score based on User.java entity fields and returns a sorted list.
+        Excludes the target user and users already being followed by the target user.
+        Uses configurable scoring weights and supports 3-tier language preferences.
         """
-        query = """
-        MATCH (target:User {userId: $userId})
+        # Get configuration values
+        weights = RecommendationConfig.get_score_weights()
+        lang_weights = RecommendationConfig.get_language_weights()
+        
+        query = f"""
+        MATCH (target:User {{userId: $userId}})
         MATCH (other:User)
         WHERE target <> other
+        AND NOT (target)-[:FOLLOWS]->(other)
 
-        // Calculate score components
+        // Calculate individual score components
         WITH target, other,
-             CASE WHEN target.homeUni IS NOT NULL AND target.homeUni = other.homeUni THEN 10 ELSE 0 END AS homeUniScore,
-             CASE WHEN target.exchangeUni IS NOT NULL AND target.exchangeUni = other.exchangeUni THEN 10000 ELSE 0 END AS exchangeUniScore,
-             CASE WHEN target.nationality IS NOT NULL AND target.nationality = other.nationality THEN 10 ELSE 0 END AS nationalityScore,
-             CASE WHEN target.preferredLanguage IS NOT NULL AND target.preferredLanguage = other.preferredLanguage THEN 30 ELSE 0 END AS languageScore
+             // Home university match
+             CASE WHEN target.homeUni IS NOT NULL AND target.homeUni = other.homeUni THEN 1 ELSE 0 END AS homeUniMatch,
+             
+             // Exchange university match  
+             CASE WHEN target.exchangeUni IS NOT NULL AND target.exchangeUni = other.exchangeUni THEN 1 ELSE 0 END AS exchangeUniMatch,
+             
+             // Department match
+             CASE WHEN target.department IS NOT NULL AND target.department = other.department THEN 1 ELSE 0 END AS departmentMatch,
+             
+             // Nationality match
+             CASE WHEN target.nationality IS NOT NULL AND target.nationality = other.nationality THEN 1 ELSE 0 END AS nationalityMatch,
+             
+             // Gender match
+             CASE WHEN target.gender IS NOT NULL AND target.gender = other.gender THEN 1 ELSE 0 END AS genderMatch,
+             
+             // Follower bonus
+             CASE WHEN (other)-[:FOLLOWS]->(target) THEN 1 ELSE 0 END AS followerMatch,
+             
+             // Complex language similarity calculation
+             (
+                 {lang_weights[0]} * (
+                     CASE WHEN target.preferredLanguage1 IS NOT NULL AND target.preferredLanguage1 = other.preferredLanguage1 THEN 1.0
+                          WHEN target.preferredLanguage1 IS NOT NULL AND target.preferredLanguage1 = other.preferredLanguage2 THEN 1.0/2.0
+                          WHEN target.preferredLanguage1 IS NOT NULL AND target.preferredLanguage1 = other.preferredLanguage3 THEN 1.0/3.0
+                          ELSE 0 END
+                 ) +
+                 {lang_weights[1]} * (
+                     CASE WHEN target.preferredLanguage2 IS NOT NULL AND target.preferredLanguage2 = other.preferredLanguage1 THEN 1.0
+                          WHEN target.preferredLanguage2 IS NOT NULL AND target.preferredLanguage2 = other.preferredLanguage2 THEN 1.0/2.0
+                          WHEN target.preferredLanguage2 IS NOT NULL AND target.preferredLanguage2 = other.preferredLanguage3 THEN 1.0/3.0
+                          ELSE 0 END
+                 ) +
+                 {lang_weights[2]} * (
+                     CASE WHEN target.preferredLanguage3 IS NOT NULL AND target.preferredLanguage3 = other.preferredLanguage1 THEN 1.0
+                          WHEN target.preferredLanguage3 IS NOT NULL AND target.preferredLanguage3 = other.preferredLanguage2 THEN 1.0/2.0
+                          WHEN target.preferredLanguage3 IS NOT NULL AND target.preferredLanguage3 = other.preferredLanguage3 THEN 1.0/3.0
+                          ELSE 0 END
+                 )
+             ) AS languageSimilarity
 
-        // Calculate total score
-        WITH other, (homeUniScore + exchangeUniScore + nationalityScore + languageScore) AS totalScore
+        // Calculate final weighted score using dot product
+        WITH other, 
+             (homeUniMatch * {weights[0]} + 
+              exchangeUniMatch * {weights[1]} + 
+              languageSimilarity * {weights[2]} + 
+              departmentMatch * {weights[3]} + 
+              nationalityMatch * {weights[4]} + 
+              genderMatch * {weights[5]} + 
+              followerMatch * {weights[6]}) AS totalScore,
+             homeUniMatch, exchangeUniMatch, languageSimilarity, 
+             departmentMatch, nationalityMatch, genderMatch, followerMatch
+        
+        WHERE totalScore > 0
         ORDER BY totalScore DESC
         LIMIT $limit
 
-        RETURN other.userId AS userId, other.name AS name, totalScore AS score
+        RETURN other.userId AS userId, other.name AS name, totalScore AS score,
+               homeUniMatch, exchangeUniMatch, languageSimilarity, 
+               departmentMatch, nationalityMatch, genderMatch, followerMatch
         """
+        
         logger.info(f"Executing recommendation query for user {user_id}")
         try:
             result = self.graph.run(query, userId=user_id, limit=limit)
