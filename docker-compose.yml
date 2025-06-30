@@ -6,6 +6,7 @@ services:
       dockerfile: ./dockerfile
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - JWK_SET_URI=${JWK_SET_URI}
     ports:
       - "8080:8080"
     volumes:
@@ -33,38 +34,38 @@ services:
       - users-db
     networks:
       - my-network
-#
-#  verification-service:
-#    build:
-#      context: ./verification-service
-#      dockerfile: ./dockerfile
-#    environment:
-#      - DB_URL=${VERIFICATION_DB_URL}
-#      - DB_USERNAME=${VERIFICATION_DB_USERNAME}
-#      - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
-#    env_file:
-#      -  .env
-#    ports:
-#      - "8082:8080"
-#    depends_on:
-#      - verification-db
-#
-#  post-service:
-#    build:
-#      context: ./post-service
-#      dockerfile: ./dockerfile
-#    environment:
-#      - DB_URL=${POST_DB_URL}
-#      - DB_USERNAME=${POST_DB_USERNAME}
-#      - DB_PASSWORD=${POST_DB_PASSWORD}
-#    env_file:
-#      - .env
-#    ports:
-#      - "8083:8083"
-#    depends_on:
-#      - post-db
-#    volumes:
-#      - ./uploads:/uploads
+
+  verification-service:
+    build:
+      context: ./verification-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${VERIFICATION_DB_URL}
+      - DB_USERNAME=${VERIFICATION_DB_USERNAME}
+      - DB_PASSWORD=${VERIFICATION_DB_PASSWORD}
+    env_file:
+      -  .env
+    ports:
+      - "8082:8080"
+    depends_on:
+      - verification-db
+
+  post-service:
+    build:
+      context: ./post-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${POST_DB_URL}
+      - DB_USERNAME=${POST_DB_USERNAME}
+      - DB_PASSWORD=${POST_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "8083:8083"
+    depends_on:
+      - post-db
+    volumes:
+      - ./uploads:/uploads
   users-db:
     image: postgres:latest
     environment:
@@ -77,28 +78,28 @@ services:
       - "5433:5432"
     networks:
       - my-network
-#
-#  verification-db:
-#    image: postgres:latest
-#    environment:
-#      POSTGRES_DB: ${VERIFICATION_DB_NAME}
-#      POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
-#      POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
-#    env_file:
-#      - .env
-#    ports:
-#      - "5434:5432"
-#
-#  post-db:
-#    image: postgres:latest
-#    environment:
-#      POSTGRES_DB: ${POST_DB_NAME}
-#      POSTGRES_USER: ${POST_DB_USERNAME}
-#      POSTGRES_PASSWORD: ${POST_DB_PASSWORD}
-#    env_file:
-#      - .env
-#    ports:
-#      - "5435:5432"
+
+  verification-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${VERIFICATION_DB_NAME}
+      POSTGRES_USER: ${VERIFICATION_DB_USERNAME}
+      POSTGRES_PASSWORD: ${VERIFICATION_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"
+
+  post-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${POST_DB_NAME}
+      POSTGRES_USER: ${POST_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POST_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5435:5432"
 volumes:
   gateway-gradle-cache:
   user-gradle-cache:

@@ -1,9 +1,11 @@
 package com.omniversity.server.user.dto;
 
-import com.omniversity.server.user.entity.*;
-import jakarta.validation.constraints.*;
-
 import java.util.Date;
+
+import com.omniversity.server.user.entity.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * TODO:

@@ -3,17 +3,15 @@ package com.omniversity.server;
 import static com.omniversity.server.JwtConfig.privateKey;
 import static com.omniversity.server.JwtConfig.publicKey;
 
+import java.util.Date;
+
 import com.omniversity.server.user.entity.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.security.PrivateKey;
-import java.util.Date;
 
 @Component
 public class JwtTokenProvider {

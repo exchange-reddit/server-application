@@ -1,36 +1,32 @@
 package com.omniversity.server.user;
 
+import static com.omniversity.server.JwtConfig.publicKey;
+import static com.omniversity.server.user.entity.UserType.EXCHANGE_USER;
+import static com.omniversity.server.user.entity.UserType.PROSPECTIVE_USER;
+
+import java.security.interfaces.RSAPublicKey;
+import java.util.Map;
+
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.omniversity.server.JwtTokenProvider;
-import com.omniversity.server.service.Mapper.ExchangeUserMapper;
-import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
-import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
-import com.omniversity.server.user.dto.LoginInputDto;
-import com.omniversity.server.user.dto.LoginOutputDto;
-import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
 import com.omniversity.server.exception.ChangedPasswordSameException;
 import com.omniversity.server.exception.NoSuchUserException;
 import com.omniversity.server.exception.WrongPasswordException;
-import com.omniversity.server.service.PasswordValidator;
+import com.omniversity.server.service.Mapper.ExchangeUserMapper;
+import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
 import com.omniversity.server.service.Mapper.UpdateUserMapper;
 import com.omniversity.server.service.Mapper.UserResponse.UserResponseMapper;
+import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.dto.request.RefreshTokenRequestDto;
 import com.omniversity.server.user.dto.response.RefreshTokenResponseDto;
 import com.omniversity.server.user.dto.response.ReturnDto;
-import com.omniversity.server.user.dto.response.jwt.PublicKeyDto;
 import com.omniversity.server.user.entity.User;
-
 import com.omniversity.server.user.entity.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static com.omniversity.server.JwtConfig.publicKey;
-import static com.omniversity.server.user.entity.UserType.*;
-
-import java.security.interfaces.RSAPublicKey;
 
 /**
  * TODO
@@ -91,11 +87,11 @@ public class UserService {
     }
 
     // provide jwt public key
-    public PublicKeyDto getPublicKey() throws Exception {
+    public Map<String, Object> getPublicKey() throws Exception {
         RSAKey key = new RSAKey.Builder((RSAPublicKey) publicKey())
                 .keyID("gateway-key")
                 .build();
-        return new PublicKeyDto(new JWKSet(key).toJSONObject());
+        return new JWKSet(key).toJSONObject();
     }
 
     // Login user
