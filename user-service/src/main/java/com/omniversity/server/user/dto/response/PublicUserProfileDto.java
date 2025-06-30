@@ -1,8 +1,8 @@
 package com.omniversity.server.user.dto.response;
 
-import com.omniversity.server.user.entity.University;
-
 import java.util.Date;
+
+import com.omniversity.server.user.entity.University;
 
 public record PublicUserProfileDto(
         String name,

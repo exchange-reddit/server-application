@@ -4,22 +4,42 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service
-          uri: http://localhost:8081/ # Used to be localhost:8080 but modified to 8081 during merge conflict resolution
+        - id: user-service-login
+          uri: http://user-service:8080/
           predicates:
             - Path=/users/login
             - Method=POST
-          filters:
-            - Authorization
-        - id: user-service-signup
+        - id: user-service-register
           uri: http://user-service:8080/
           predicates:
-            - Path=/users/signup
+            - Path=/users/register/**
             - Method=POST
+        - id: user-service-refresh
+          uri: http://user-service:8080/
+          predicates:
+            - Path=/users/refresh
+            - Method=POST
+        - id: user-service-protected
+          uri: http://user-service:8080/
+          predicates:
+            - Path=/users/**
           filters:
-            - Authorization
+            - JwtHeader
+        - id: verification-service-protected
+          uri: http://verification-service:8082/
+          predicates:
+            - Path=/token/**
+          filters:
+            - JwtHeader
+        - id: post-service-protected
+          uri: http://post-service:8083/
+          predicates:
+            - Path=/posts/register/**
+          filters:
+            - JwtHeader
 jwt:
-  secret: ${JWT_SECRET}
+  jwk-set-uri: ${JWK_SET_URI}
+  issuer-uri: ${ISSUER_URI}
   expiration: 3600000
 server:
   port: 8080

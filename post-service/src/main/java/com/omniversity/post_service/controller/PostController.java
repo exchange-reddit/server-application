@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 public class PostController {
 
     private final PostService postService;
@@ -47,6 +47,7 @@ public class PostController {
         PostResponseDto savedPostDto = postService.createPost(postCreateDto, file);
         return ResponseEntity.ok(savedPostDto);
     }
+
 
     /**
      * Returns list of all posts with full information. This is a longer version of /all-posts-shorter.
