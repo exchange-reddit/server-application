@@ -1,11 +1,11 @@
 package com.omniversity.server.user.dto.response;
 
+import java.util.Date;
+
 import com.omniversity.server.user.entity.Country;
 import com.omniversity.server.user.entity.Language;
 import com.omniversity.server.user.entity.Program;
 import com.omniversity.server.user.entity.University;
-
-import java.util.Date;
 
 public record ProspectiveUserResponseNoPasswordDto (
         String name,

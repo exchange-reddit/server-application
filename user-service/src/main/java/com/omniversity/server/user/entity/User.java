@@ -1,9 +1,8 @@
 package com.omniversity.server.user.entity;
 
-import jakarta.persistence.*;
-import org.springframework.http.HttpStatusCode;
-
 import java.util.Date;
+
+import jakarta.persistence.*;
 
 // Applying properties of inheritance
 

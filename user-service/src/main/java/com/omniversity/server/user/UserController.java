@@ -1,8 +1,7 @@
 package com.omniversity.server.user;
 
-import com.omniversity.server.user.dto.ExchangeUserRegistrationDto;
-import com.omniversity.server.user.dto.LoginInputDto;
-import com.omniversity.server.user.dto.ProspectiveUserRegistrationDto;
+import java.util.List;
+
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.dto.request.RefreshTokenRequestDto;
 import com.omniversity.server.user.entity.User;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * TODO: Guard condition to ensure user verification prior to registration
