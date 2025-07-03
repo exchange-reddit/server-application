@@ -1,7 +1,7 @@
 --Commented out: take this only as a reference only, use hibernate entity for
 -- schema generation instead.
 CREATE TABLE post (
-    id BIGSERIAL PRIMARY KEY,
+    id BIG-SERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     title VARCHAR(255) NOT NULL,
