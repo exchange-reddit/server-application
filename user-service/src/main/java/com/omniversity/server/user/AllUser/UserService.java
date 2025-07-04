@@ -59,13 +59,12 @@ public class UserService {
     }
 
     public AbstractUser getUser (Long id) throws NoSuchUserException {
-        Optional<AbstractUser> optionalAbstractUser = abstractUserRepository.findById(id);
+        AbstractUser reqUser = abstractUserRepository.findById(id).orElseThrow(() ->
+        {
+            throw new NoSuchUserException(String.format("User ID %d does not exist in our system.", id));
+        });
 
-        if (optionalAbstractUser.isEmpty()) {
-            throw new NoSuchUserException((String.format("User ID %d does not exist in our system.", id)));
-        }
-
-        return optionalAbstractUser.get();
+        return reqUser;
     }
 
     public pwChangeLogDto changePassword(ChangePasswordDto changePasswordDto, Long id) throws RuntimeException {
@@ -114,7 +113,7 @@ public class UserService {
         long daysBetween = ChronoUnit.DAYS.between(today, user.getRegistrationDate());
 
         // Check if the grace period has passed or not
-        if (daysBetween > 14) {
+        if (Math.abs(daysBetween) > 14) {
             throw new PassedGracePeriodException(String.format("%d days have passed since your registration to our service. The grace period to change your nationality is 2 weeks.", daysBetween));
         }
 

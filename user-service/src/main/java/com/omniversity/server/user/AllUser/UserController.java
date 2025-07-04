@@ -69,6 +69,8 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (ChangedPasswordSameException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (NoSuchUserException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -81,6 +83,8 @@ public class UserController {
         try {
             userService.changeNationality(id, dto);
             return ResponseEntity.status(HttpStatus.OK).body("Your nationality has been changed successfully");
+        } catch (NoSuchUserException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (PassedGracePeriodException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -97,6 +101,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(String.format("Account ID %s has been terminated as of %s", dto.updateUser(), LocalDate.now()));
         } catch (WrongPasswordException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchUserException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

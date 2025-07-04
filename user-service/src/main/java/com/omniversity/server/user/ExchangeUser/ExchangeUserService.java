@@ -46,9 +46,6 @@ public class ExchangeUserService {
                 {
                     throw new NoSuchUserException("The user with the provided ID was not found: " + id);
                 });
-
-        // TODO: Shape the user into a dto
-
         return user;
     }
 

@@ -59,11 +59,10 @@ public class ProspectiveUserService {
     }
 
     public ProspectiveUserResponseNoPasswordDto updateDesiredExchangeUniversity(DesiredUniversityUpdateDto dto, Long id) throws NoSuchUserException {
-        Optional<ProspectiveUser> optionalUser = Optional.of(prospectiveUserRepository.findById(id)).orElseThrow(
-                () -> new NoSuchUserException(String.format("No such user exists with the following id: %d", id))
-        );
-
-        ProspectiveUser user = optionalUser.get();
+        ProspectiveUser user = prospectiveUserRepository.findById(id).orElseThrow(() ->
+        {
+            throw new NoSuchUserException(String.format("No such user exists with the following id: %d", id));
+        });
 
         user.setDesiredUniversity(dto.desiredUniversity());
         prospectiveUserRepository.save(user);
