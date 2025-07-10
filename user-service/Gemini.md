@@ -56,3 +56,32 @@ This document outlines the directory structure and key components of the `user-s
 ## Tests (`src/test/java/com/omniversity/server/`)
 
 *   Mirrors the `src/main/java` structure, containing unit and integration tests for each corresponding module (e.g., `log/`, `service/`, `user/`).
+
+## Unit Testing with JUnit
+
+The `user-service` employs JUnit 5 for its unit and integration tests, leveraging Mockito for mocking dependencies.
+
+### Service Layer Tests (e.g., `ProspectiveUserServiceTest.java`, `PasswordValidatorTest.java`)
+
+*   **Mockito Integration**: Utilize `@ExtendWith(MockitoExtension.class)` to enable Mockito annotations.
+*   **Dependency Mocking**: Dependencies are mocked using `@Mock` (e.g., repositories, other services, mappers, `PasswordEncoder`, `PasswordValidator`).
+*   **Injection**: The class under test is instantiated with injected mocks using `@InjectMocks`.
+*   **Setup**: `@BeforeEach` is used for common setup, such as initializing test data.
+*   **Mock Behavior**: `when().thenReturn()` is extensively used to define the behavior of mocked dependencies.
+*   **Assertions**: Assertions like `assertEquals`, `assertTrue`, `assertFalse`, and `assertThrows` are used to verify method outcomes and exception handling.
+
+### Controller Layer Tests (e.g., `ProspectiveUserControllerTest.java`)
+
+*   **Mockito Integration**: Also use `@ExtendWith(MockitoExtension.class)` for Mockito.
+*   **Service Mocking**: The service layer dependency is mocked using `@Mock`.
+*   **Injection**: The controller under test is instantiated with injected mocks using `@InjectMocks`.
+*   **Setup**: `@BeforeEach` is used for setting up common test data.
+*   **Mock Behavior**: Service method calls are mocked to control their return values or to throw specific exceptions.
+*   **Assertions**: Assertions focus on verifying HTTP status codes (`HttpStatus.CREATED`, `HttpStatus.CONFLICT`, `HttpStatus.BAD_REQUEST`, `HttpStatus.NOT_FOUND`, `HttpStatus.INTERNAL_SERVER_ERROR`) and the content of the `ResponseEntity` body.
+*   **Error Handling**: Tests cover successful scenarios as well as various error conditions, including custom exceptions like `UserAlreadyExistsException`, `WeakPasswordException`, and `NoSuchUserException`.
+
+### Entity/DTO Tests (e.g., `ExchangeUserTest.java`, `ProspectiveUserRegistrationDtoTest.java`)
+
+*   **Plain JUnit**: These are plain JUnit tests without Mockito, as they test simple POJOs (Plain Old Java Objects).
+*   **Setup**: `@BeforeEach` is used to initialize the entity or DTO object.
+*   **Assertions**: Tests primarily verify the correct functioning of constructors, getters, and setters using `assertEquals`.

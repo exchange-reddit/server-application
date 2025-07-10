@@ -93,3 +93,40 @@ The Post-Service follows a layered architecture:
     *   Publishing a message to a Kafka topic via `PostProducer`.
 4.  The service layer returns a result to the controller.
 5.  The controller maps the result to a response DTO and sends it back to the client.
+
+## Unit Testing with JUnit
+
+The `post-service` uses JUnit 5 and Mockito for its unit and integration tests. The testing strategy is similar to `user-service`, with a clear separation of concerns for different layers.
+
+### Service Layer Tests (`PostServiceTest.java`)
+
+*   **Mockito Integration**: Uses `@ExtendWith(MockitoExtension.class)` for Mockito.
+*   **Dependency Mocking**: Mocks dependencies like `PostRepository`, `PostMapper`, and `StorageService` using `@Mock`.
+*   **Injection**: Injects mocks into `PostService` using `@InjectMocks`.
+*   **Setup**: `@BeforeEach` sets up a common `Post` object for tests.
+*   **Test Coverage**: Tests cover CRUD operations (create, get, update, delete) and file handling.
+*   **Mock Behavior & Verification**: `when().thenReturn()` and `verify()` are used to control mock behavior and verify interactions.
+*   **Assertions**: Assertions include `assertNotNull`, `assertEquals`, `assertThrows`, and `assertTrue`.
+*   **Error Handling**: Tests for both success and failure scenarios (e.g., `PostNotFoundException`, `InvalidInputException`).
+
+### Controller Layer Tests (`PostControllerTest.java`)
+
+*   **Mockito Integration**: Uses `@ExtendWith(MockitoExtension.class)` for Mockito.
+*   **Service & Mapper Mocking**: Mocks `PostService` and `PostMapper` using `@Mock`.
+*   **Injection**: Injects mocks into `PostController` using `@InjectMocks`.
+*   **Setup**: `@BeforeEach` sets up a common `Post` object.
+*   **HTTP Response Verification**: Tests verify HTTP responses (status codes and body content) for various API endpoints.
+*   **Mock Behavior**: `when().thenReturn()` is used to mock service layer responses.
+*   **Assertions**: Assertions focus on `HttpStatus` and `ResponseEntity` content.
+
+### Mapper Tests (`PostMapperImplTest.java`)
+
+*   **Plain JUnit**: These tests focus on the `PostMapperImpl` class, which is responsible for converting between DTOs and entities. No Mockito is used here, as the mapper is a plain Java class.
+*   **Setup**: `@BeforeEach` initializes the `PostMapperImpl` instance.
+*   **Mapping Logic Verification**: Tests verify the mapping logic, including handling of null or empty inputs and partial updates.
+*   **Error Handling**: `assertThrows` is used to verify `InvalidInputException` for invalid DTOs.
+
+### DTO Tests (`PostResponseDtoTest.java`, `PostListItemDtoTest.java`, etc.)
+
+*   **Plain JUnit**: Similar to `user-service`, these are simple JUnit tests for POJOs.
+*   **Verification**: They verify constructors, getters, and setters using `assertEquals` and `assertTrue`.
