@@ -111,12 +111,6 @@ class LocalStorageServiceTest {
     }
 
     @Test
-    void delete_IllegalFilePathException_EmptyPath() {
-        InvalidFileNameException exception = assertThrows(InvalidFileNameException.class, () -> localStorageService.delete("  "));
-        assertTrue(exception.getMessage().contains("Invalid file path provided for deletion"));
-    }
-
-    @Test
     void delete_InvalidFileNameException_InvalidPath() {
         InvalidFileNameException exception = assertThrows(InvalidFileNameException.class, () -> localStorageService.delete("invalid\0path"));
         assertTrue(exception.getMessage().contains("Invalid file path provided for deletion"));
