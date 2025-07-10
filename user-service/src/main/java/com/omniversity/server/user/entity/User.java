@@ -1,7 +1,6 @@
 package com.omniversity.server.user.entity;
 
 import jakarta.persistence.*;
-import org.springframework.http.HttpStatusCode;
 
 import java.util.Date;
 
@@ -14,12 +13,14 @@ import java.util.Date;
  */
 @Entity
 @Table(name="users")
-
 public class User {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         @Column(name="id", nullable = false)
         private long id;
+
+        @Column(name="gender", nullable = false)
+        private Gender gender;
 
         // Both prospective and exchange user accounts will be saved in the same db as prospective users shall be upgraded to exchange user account upon enrollment at the university of exchange.
         // Upon the submission of all datum marked as 'exchange user', the userType attribute will be changed to exchangeUser.
@@ -103,11 +104,15 @@ public class User {
         @Column(name="is_active")
         private Boolean isActive;
 
+        @Column(name="registration_date")
+        private Date registrationDate;
+
         public User() {}
 
-        public User (int id, String name, String privateEmail, Boolean privateEmailVerified, String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, Boolean exchangeEmailVerified, String homeEmail, Boolean homeEmailVerified, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Program program, Boolean isActive) {
+        public User (int id, String name, Gender gender, String privateEmail, Boolean privateEmailVerified, String passwordHash, String userId, Date dateOfBirth, boolean isAdmin, UserType userType, University homeUni, University exchangeUni, String exchangeEmail, Boolean exchangeEmailVerified, String homeEmail, Boolean homeEmailVerified, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Program program, Boolean isActive, Date registrationDate) {
                 this.id = id;
                 this.name = name;
+                this.gender = gender;
                 this.privateEmail = privateEmail;
                 this.privateEmailVerified = false;
                 this.passwordHash = passwordHash;
@@ -128,6 +133,7 @@ public class User {
                 this.profilePicture = profilePicture;
                 this.program = program;
                 this.isActive = isActive;
+                this.registrationDate = registrationDate;
         }
 
         public long getId() {
@@ -144,6 +150,14 @@ public class User {
 
         public void setName(String name) {
                 this.name = name;
+        }
+
+        public Gender getGender() {
+                return gender;
+        }
+
+        public void setGender(Gender gender) {
+                this.gender = gender;
         }
 
         public String getPrivateEmail() {
@@ -280,6 +294,10 @@ public class User {
 
         public void setActive(Boolean active) {
                 isActive = active;
+        }
+
+        public Date getRegistrationDate() {
+                return registrationDate;
         }
 
         public void setEmailVerified(Boolean verified, int emailType) {

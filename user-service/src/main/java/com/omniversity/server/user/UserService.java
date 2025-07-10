@@ -2,7 +2,10 @@ package com.omniversity.server.user;
 
 import com.omniversity.server.exception.ChangedPasswordSameException;
 import com.omniversity.server.exception.NoSuchUserException;
+import com.omniversity.server.exception.PassedGracePeriodException;
 import com.omniversity.server.exception.WrongPasswordException;
+import com.omniversity.server.log.dto.accountDeleteLogDto;
+import com.omniversity.server.log.dto.pwChangeLogDto;
 import com.omniversity.server.service.Mapper.ExchangeUserMapper;
 import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.service.Mapper.ProspectiveUserMapper;
@@ -10,15 +13,21 @@ import com.omniversity.server.service.Mapper.UpdateUserMapper;
 import com.omniversity.server.service.Mapper.UserResponse.UserResponseMapper;
 import com.omniversity.server.user.dto.*;
 import com.omniversity.server.user.dto.response.ReturnDto;
+import com.omniversity.server.user.entity.Country;
 import com.omniversity.server.user.entity.User;
 
 import com.omniversity.server.user.entity.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Optional;
 
 import static com.omniversity.server.user.entity.UserType.*;
@@ -146,17 +155,19 @@ public class UserService {
 
     }
 
-    public void changePassword(ChangePasswordDto changePasswordDto, int id) {
+    // TODO: This method needs to return a pwChangeLogDto so that it can be saved in db
+    public pwChangeLogDto changePassword(ChangePasswordDto changePasswordDto, int id) {
         try {
             User user = getUser(id);
+            String prevHash = user.getPasswordHash();
 
             // Verify if the provided current password is correct
-            if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), user.getPasswordHash())) {
+            if (!passwordValidator.checkPasswordMatch(changePasswordDto.currentPassword(), prevHash)) {
                 throw new WrongPasswordException("Provided password is incorrect");
             }
 
             // Verify if the new password is the same as the old one.
-            if (passwordValidator.checkPasswordMatch(changePasswordDto.newPassword(), user.getPasswordHash())) {
+            if (passwordValidator.checkPasswordMatch(changePasswordDto.newPassword(), prevHash)) {
                 throw new ChangedPasswordSameException("New password cannot be the same as the old password.");
             }
 
@@ -167,9 +178,16 @@ public class UserService {
 
             // TODO: Choice of email (Between home, exchange, and private)
 
-            // Set new password for the user
+            // Calculate and save the hash value of the new provided password
             user.setPasswordHash(passwordEncoder.encode(changePasswordDto.newPassword()));
+            // Save the user to the database
             userRepository.save(user);
+
+            // Send the user object with the previous password hash
+            user.setPasswordHash(prevHash);
+
+            // Return the pwChangeLog in a form of dto
+            return new pwChangeLogDto(String.valueOf(id), prevHash);
 
         } catch (Exception e) {
             throw e;
@@ -196,27 +214,39 @@ public class UserService {
 
     }
 
-    public Boolean deleteUser(DeleteUserDto deleteUserDto) {
-        try {
-            // Retrieve the user from the database or throw NoSuchUserException
-            User user = getUser((int)deleteUserDto.userId());
+    // A dedicated method to assist users to change their nationality (Users are allowed to change their nationality for once during the grace period of 2 weeks)
+    public void changeNationality(int id, ChangeNationalityDto dto) throws PassedGracePeriodException {
+        // Get requesting user through their id
+        User user = getUser(id);
+        // Retrieve the server date of the day of operation (Server Time)
+        LocalDate today = LocalDate.now();
+        // Convert the user registration date object (Date) into a LocalDate object for comparison. (Based on server time)
+        LocalDate registrationDate = user.getRegistrationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        // Calculate the days between the registration date and the date of request
+        long daysBetween = ChronoUnit.DAYS.between(today, registrationDate);
 
-            // Validate if the provided password is correct
-            if (!passwordValidator.checkPasswordMatch(deleteUserDto.password(), user.getPasswordHash())) {
-                throw new WrongPasswordException("Invalid password provided for user deletion");
-            }
-
-            // Remove password hash from the user object to avoid possible data breach
-            user.setPasswordHash("");
-
-            userRepository.deleteById(user.getId());
-            return true;
-
-        } catch (NoSuchUserException | WrongPasswordException e){
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while deleting the user: " + e.getMessage(), e);
+        // Check if the grace period has passed or not
+        if (daysBetween > 14) {
+            throw new PassedGracePeriodException(String.format("%d days have passed since your registration to our service. The grace period to change your nationality is 2 weeks.", daysBetween));
         }
+
+        user.setNationality(dto.nationality());
+        userRepository.save(user);
+    }
+
+    // Method to delete an account
+    // TODO: Add an additional method to delete account in case the user forgets password (By Email preferably)
+    public accountDeleteLogDto deleteUser(DeleteUserDto deleteUserDto) throws WrongPasswordException {
+        // Retrieve the user that will be deleted
+        User user = getUser((int)deleteUserDto.userId());
+
+        if (!passwordValidator.checkPasswordMatch(deleteUserDto.password(), user.getPasswordHash())) {
+            throw new WrongPasswordException("The provided previous password does not match.");
+        }
+
+        userRepository.deleteById(user.getId());
+
+        return new accountDeleteLogDto(String.valueOf(deleteUserDto.userId()), "Delete Account");
 
     }
 

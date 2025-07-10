@@ -15,6 +15,9 @@ public class ExchangeUserRegistrationDto {
     private UserType userType;
     @NotBlank(message = "Name cannot be blank")
     private String name;
+
+    @NotBlank(message = "Gender cannot be blank")
+    private Gender gender;
     @NotBlank(message = "Private email must be provided")
     @Email(message = "Email should be valid")
     private String privateEmail;
@@ -50,9 +53,10 @@ public class ExchangeUserRegistrationDto {
     private Boolean isActive;
 
 
-    public ExchangeUserRegistrationDto(UserType userType, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Program program, Boolean isActive) {
+    public ExchangeUserRegistrationDto(UserType userType, Gender gender, String name, String privateEmail, String password, String userId, Date dateOfBirth, Boolean isAdmin, University exchangeUni, University homeUni, String exchangeEmail, String homeEmail, Country nationality, Date exchangeStart, Date exchangeEnd, Language preferredLanguage, String profilePicture, Program program, Boolean isActive) {
         this.userType = userType;
         this.name = name;
+        this.gender = gender;
         this.privateEmail = privateEmail;
         this.password = password;
         this.userId = userId;
@@ -79,6 +83,8 @@ public class ExchangeUserRegistrationDto {
     public String getName() {
         return name;
     }
+
+    public Gender getGender() { return gender; }
 
 
     public String getPrivateEmail() {
