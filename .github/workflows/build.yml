@@ -27,13 +27,11 @@ jobs:
 
     - name: Post Service Unit Test
       run: |
-        cd..
         cd post-service
         ./gradlew test
 
     - name: Verification Service Unit Test
       run: |
-        cd..
         cd verification-service
         ./gradlew test
 
