@@ -79,14 +79,8 @@ public class RegistrationTokenService {
      * Params: Email address to receive the code
      */
     public void checkDuplicate(String email) {
-        try {
-            // Find the token by using the email address
-            Optional<RegistrationToken> optionalToken = registrationTokenRepository.findByEmail(email);
-            // If a previous token exists, remove the previous one
-            optionalToken.ifPresent(this::removeToken);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Optional<RegistrationToken> optionalToken = registrationTokenRepository.findByEmail(email);
+        optionalToken.ifPresent(this::removeToken);
     }
 
     public void sendRegistrationToken(String name, String emailAddress, RegistrationToken registrationToken) {
