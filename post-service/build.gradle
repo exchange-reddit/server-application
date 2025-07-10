@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
 }
 
 group = 'com.omniversity'
@@ -10,6 +11,12 @@ version = '0.0.1-SNAPSHOT'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+jacocoTestReport {
+	reports {
+		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
 	}
 }
 
@@ -24,6 +31,7 @@ ext {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.cloud:spring-cloud-stream'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -41,9 +49,13 @@ dependencies {
 	//postgres
 	runtimeOnly 'org.postgresql:postgresql'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Something like nodemon
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 dependencyManagement {
@@ -54,4 +66,9 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+tasks.jacocoTestReport {
+    dependsOn tasks.test
 }

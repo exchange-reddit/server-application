@@ -19,8 +19,8 @@ public class JwtTokenProvider {
 
     public String generateToken(String subject) {
         return Jwts.builder()
-                .subject(subject)
-                .issuedAt(new Date())
+                .setSubject(subject)
+                .setIssuedAt(new Date())
                 .signWith(jwtSigningKey)
                 .compact();
     }
