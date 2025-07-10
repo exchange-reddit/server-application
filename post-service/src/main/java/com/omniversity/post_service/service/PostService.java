@@ -25,7 +25,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     @Autowired
-    private StorageService storageService;
+    private final StorageService storageService;
 
     public List<PostResponseDto> getAllPosts() {
         return postRepository.findAll().stream()

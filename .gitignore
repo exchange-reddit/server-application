@@ -121,5 +121,3 @@ fabric.properties
 
 .gradle
 build/
-
-test/

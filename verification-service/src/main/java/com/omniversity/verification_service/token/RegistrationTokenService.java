@@ -9,8 +9,10 @@ import com.omniversity.verification_service.token.dto.VerificationDto;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.omniversity.verification_service.token.exceptions.InvalidTokenException;
+import com.omniversity.verification_service.token.exceptions.NoSuchTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -79,11 +81,9 @@ public class RegistrationTokenService {
     public void checkDuplicate(String email) {
         try {
             // Find the token by using the email address
-            RegistrationToken token = registrationTokenRepository.findByEmail(email);
+            Optional<RegistrationToken> optionalToken = registrationTokenRepository.findByEmail(email);
             // If a previous token exists, remove the previous one
-            if (token != null) {
-                removeToken(token);
-            }
+            optionalToken.ifPresent(this::removeToken);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,14 +123,25 @@ public class RegistrationTokenService {
      * Params: String value of the registration token
      * Returns: Registration token
      */
-    public RegistrationToken findByToken(String code) {
-        return registrationTokenRepository.findByCode(code);
+    public RegistrationToken findByToken(String code) throws NoSuchTokenException {
+        RegistrationToken token = registrationTokenRepository.findByCode(code)
+                .orElseThrow(() ->
+                {
+                    throw new NoSuchTokenException("No registration token was found with the following id");
+                });
+
+        return token;
     }
 
-    public Boolean verifyToken(VerificationDto verificationDto) throws InvalidTokenException {
+    public Boolean verifyToken(VerificationDto verificationDto) throws InvalidTokenException, NoSuchTokenException {
         try {
             // Find the token by using the provided email
-            RegistrationToken token = registrationTokenRepository.findByEmail(verificationDto.email());
+            RegistrationToken token = registrationTokenRepository.findByEmail(verificationDto.email())
+                    .orElseThrow(() ->
+                    {
+                        throw new NoSuchTokenException(String.format("No registration token was assigned to the following email: %s", verificationDto.email()));
+                    });
+
             // Variable to see if the token is expired or not
             LocalDateTime now = LocalDateTime.now();
 
