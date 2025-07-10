@@ -19,8 +19,23 @@ jobs:
         distribution: 'temurin'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+      
+    - name: User Service Unit Test
+      run: |
+        cd user-service
+        ./gradlew test
+
+    - name: Post Service Unit Test
+      run: |
+        cd..
+        cd post-service
+        ./gradlew test
+
+    - name: Verification Service Unit Test
+      run: |
+        cd..
+        cd verification-service
+        ./gradlew test
 
     - name: Upload test reports
       uses: actions/upload-artifact@v4
