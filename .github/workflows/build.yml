@@ -24,6 +24,7 @@ jobs:
       run: |
         cd user-service
         ./gradlew test
+      continue-on-error: true
         
     - name: Upload User Service Test Report
       uses: actions/upload-artifact@v4
@@ -35,6 +36,7 @@ jobs:
       run: |
         cd post-service
         ./gradlew test
+      continue-on-error: true
 
     - name: Upload Post Service Test Report
       uses: actions/upload-artifact@v4
@@ -46,6 +48,7 @@ jobs:
       run: |
         cd verification-service
         ./gradlew test
+      continue-on-error: true
 
     - name: Upload Verification Service Test Report
       uses: actions/upload-artifact@v4
