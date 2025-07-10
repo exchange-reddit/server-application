@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  Unit_Test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,24 +24,34 @@ jobs:
       run: |
         cd user-service
         ./gradlew test
+        
+    - name: Upload User Service Test Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: user-service-unit-test-report
+        path: user-service/build/reports/tests/test/index.html
 
     - name: Post Service Unit Test
       run: |
         cd post-service
         ./gradlew test
 
+    - name: Upload Post Service Test Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: post-service-unit-test-report
+        path: post-service/build/reports/tests/test/index.html
+
     - name: Verification Service Unit Test
       run: |
         cd verification-service
         ./gradlew test
 
-    - name: Upload test reports
+    - name: Upload Verification Service Test Report
       uses: actions/upload-artifact@v4
       with:
-        name: test-reports
-        path: |
-          **/build/reports/tests/test/
-          **/build/test-results/test/
+        name: verification-service-unit-test-report
+        path: verification-service/build/reports/tests/test/index.html        
 
     - name: Publish Test Report
       uses: dorny/test-reporter@v1
