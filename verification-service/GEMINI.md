@@ -136,11 +136,15 @@ This part of the application handles the creation, validation, and management of
 ### `VerificationServiceApplicationTests.java`
 
 *   **Purpose:** A basic Spring Boot integration test that checks if the application context loads successfully.
+*   **Key Annotations:**
+    *   `@SpringBootTest`: Provides a convenient way to start up an application context for testing.
+*   **Test Method:**
+    *   `contextLoads()`: A simple test method annotated with `@Test` that asserts the context loads without exceptions. This is a common pattern to ensure the basic setup of the Spring Boot application is correct.
 
 ### `RegistrationTokenServiceTest.java`
 
 *   **Purpose:** A unit test for the `RegistrationTokenService`.
 *   **Key Features:**
-    *   It uses Mockito to mock the `RegistrationTokenRepository`.
-    *   It sets up a test `RegistrationToken` object in the `setUp` method.
-    *   **Note:** This test file is currently incomplete and does not contain any actual test methods.
+    *   It uses Mockito to mock the `RegistrationTokenRepository` and `EmailService`.
+    *   It sets up a test `RegistrationToken` object in the `setUp` method using `@BeforeEach`.
+    *   **Note:** This test file is currently incomplete and does not contain any actual test methods (`@Test` annotated methods). It serves as a placeholder for future unit tests.
