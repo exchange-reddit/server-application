@@ -37,3 +37,4 @@ CREATE TABLE IF NOT EXISTS "logs" (
     updateContent TEXT NOT NULL,
     auditResult BIT NOT NULL
 );
+

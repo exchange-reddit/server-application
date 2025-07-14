@@ -1,5 +1,6 @@
 package com.omniversity.server.user.ProspectiveUser;
 
+import com.omniversity.server.service.HashValidator;
 import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.user.AllUser.UserService;
 import com.omniversity.server.user.ProspectiveUser.dto.request.DesiredUniversityUpdateDto;
@@ -13,6 +14,7 @@ import com.omniversity.server.user.entity.Enums.Language;
 import com.omniversity.server.user.entity.Enums.Program;
 import com.omniversity.server.user.entity.Enums.University;
 import com.omniversity.server.user.entity.ProspectiveUser;
+import com.omniversity.server.user.exception.HashValidationFailedException;
 import com.omniversity.server.user.exception.NoSuchUserException;
 import com.omniversity.server.user.exception.UserAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +50,9 @@ class ProspectiveUserServiceTest {
 
     @Mock
     private PasswordValidator passwordValidator;
+
+    @Mock
+    private HashValidator hashValidator;
 
     @Mock
     private ProspectiveUserResponse prospectiveUserResponse;
@@ -73,6 +79,7 @@ class ProspectiveUserServiceTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -83,13 +90,14 @@ class ProspectiveUserServiceTest {
     }
 
     @Test
-    void testRegisterUser_Success() {
+    void testRegisterUser_Success() throws HashValidationFailedException {
         when(userService.checkUserNameTaken("testUser")).thenReturn(false);
         when(userService.checkEmailRegistered("home@example.com", 3)).thenReturn(false);
         when(passwordValidator.validatePasswordStrength("password")).thenReturn(true);
 
         when(prospectiveUserMapper.toEntity(registrationDto)).thenReturn(user);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+        when(hashValidator.validateHash(any(), any())).thenReturn(true);
 
         ProspectiveUser registeredUser = prospectiveUserService.registerProspectiveUser(registrationDto);
 

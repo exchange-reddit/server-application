@@ -7,6 +7,7 @@ import com.omniversity.server.user.ExchangeUser.dto.response.ReturnDto;
 import com.omniversity.server.user.ExchangeUser.mapper.response.ExchangeUserResponse;
 import com.omniversity.server.user.entity.Enums.*;
 import com.omniversity.server.user.entity.ExchangeUser;
+import com.omniversity.server.user.exception.HashValidationFailedException;
 import com.omniversity.server.user.exception.NoSuchUserException;
 import com.omniversity.server.user.exception.UserAlreadyExistsException;
 import com.omniversity.server.user.exception.WeakPasswordException;
@@ -176,7 +177,7 @@ class ExchangeUserControllerTest {
     }
 
     @Test
-    void testRegisterExchangeUser_Success() {
+    void testRegisterExchangeUser_Success() throws HashValidationFailedException {
         RegistrationDto registrationDto = new RegistrationDto(
                 "Test",
                 "M",
@@ -186,6 +187,7 @@ class ExchangeUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -193,6 +195,7 @@ class ExchangeUserControllerTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );
@@ -209,7 +212,7 @@ class ExchangeUserControllerTest {
     }
 
     @Test
-    void testRegisterExchangeUser_Fail_UserAlreadyExists() {
+    void testRegisterExchangeUser_Fail_UserAlreadyExists() throws HashValidationFailedException {
         RegistrationDto registrationDto = new RegistrationDto(
                 "Test",
                 "M",
@@ -219,6 +222,7 @@ class ExchangeUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -226,6 +230,7 @@ class ExchangeUserControllerTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );
@@ -239,7 +244,7 @@ class ExchangeUserControllerTest {
     }
 
     @Test
-    void testRegisterExchangeUser_Fail_WeakPassword() {
+    void testRegisterExchangeUser_Fail_WeakPassword() throws HashValidationFailedException {
         RegistrationDto registrationDto = new RegistrationDto(
                 "Test",
                 "M",
@@ -249,6 +254,7 @@ class ExchangeUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -256,6 +262,7 @@ class ExchangeUserControllerTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );
@@ -269,7 +276,7 @@ class ExchangeUserControllerTest {
     }
 
     @Test
-    void testRegisterExchangeUser_Fail_InternalServerError() {
+    void testRegisterExchangeUser_Fail_InternalServerError() throws HashValidationFailedException {
         RegistrationDto registrationDto = new RegistrationDto(
                 "Test",
                 "M",
@@ -279,6 +286,7 @@ class ExchangeUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -286,6 +294,7 @@ class ExchangeUserControllerTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );

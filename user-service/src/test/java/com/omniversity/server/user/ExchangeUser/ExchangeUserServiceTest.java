@@ -1,5 +1,6 @@
 package com.omniversity.server.user.ExchangeUser;
 
+import com.omniversity.server.service.HashValidator;
 import com.omniversity.server.user.AllUser.UserService;
 import com.omniversity.server.user.ExchangeUser.dto.request.RegistrationDto;
 import com.omniversity.server.user.ExchangeUser.dto.request.UpdateExchangeUserDto;
@@ -16,6 +17,7 @@ import com.omniversity.server.user.entity.Enums.Language;
 import com.omniversity.server.user.entity.Enums.Program;
 import com.omniversity.server.user.entity.Enums.University;
 import com.omniversity.server.user.entity.ExchangeUser;
+import com.omniversity.server.user.exception.HashValidationFailedException;
 import com.omniversity.server.user.exception.NoSuchUserException;
 import com.omniversity.server.user.exception.UserAlreadyExistsException;
 import com.omniversity.server.service.PasswordValidator;
@@ -58,6 +60,9 @@ class ExchangeUserServiceTest {
     @Mock
     private PasswordValidator passwordValidator;
 
+    @Mock
+    private HashValidator hashValidator;
+
     @InjectMocks
     private ExchangeUserService exchangeUserService;
 
@@ -80,6 +85,7 @@ class ExchangeUserServiceTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -87,17 +93,19 @@ class ExchangeUserServiceTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );
     }
     @Test
-    void testRegisterUser_Success() {
+    void testRegisterUser_Success() throws HashValidationFailedException {
         when(userService.checkEmailRegistered(any(), any(Integer.class))).thenReturn(false);
         when(userService.checkUserNameTaken("testUser")).thenReturn(false);
         when(passwordValidator.validatePasswordStrength("password")).thenReturn(true);
         when(exchangeUserMapper.toEntity(registrationDto)).thenReturn(user);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+        when(hashValidator.validateHash(any(), any())).thenReturn(true);
 
         ExchangeUser registeredUser = exchangeUserService.registerExchangeUser(registrationDto);
 

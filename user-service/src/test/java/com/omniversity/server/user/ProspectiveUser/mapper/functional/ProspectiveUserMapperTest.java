@@ -29,12 +29,13 @@ class ProspectiveUserMapperTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
                 Language.ENGLISH,
                 Program.COMPUTER_SCIENCE,
-                University.STOCKHOLM_UNIVERSITY
+                University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY
         );
 
         ProspectiveUser entity = mapper.toEntity(dto);
