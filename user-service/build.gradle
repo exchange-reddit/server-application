@@ -71,6 +71,9 @@ dependencies {
 
     // javax annotation
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    // swagger ui
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 }
 
 protobuf {
