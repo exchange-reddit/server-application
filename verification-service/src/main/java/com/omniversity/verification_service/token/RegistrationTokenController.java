@@ -42,25 +42,4 @@ public class RegistrationTokenController {
         }
     }
 
-    @PostMapping("/validate")
-    public ResponseEntity<Boolean> validateToken(@RequestBody VerificationDto verificationDto) {
-        try {
-            // Find token using email and verification code (To see further, check the relevant method in registrationTokenService)
-            boolean result = registrationTokenService.verifyToken(verificationDto);
-
-            if (result) {
-                // Return 200 with success
-                return new ResponseEntity<>(true, HttpStatus.OK);
-            }
-
-            else {
-                // Return 400 with failure
-                return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            // If an exception occurs, return failure
-            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-        }
-    }
-
 }
