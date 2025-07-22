@@ -62,7 +62,7 @@ public class UniversityCommunityService {
      * A University Community shall only be created by the administrators (us).
      * Therefore, it is critical that we ensure a logic that validates the user creating a community is an administrator.
      */
-    public void createUniversityCommunity (UniversityCommunityCreationDto dto) throws CommunityNameTakenException {
+    public UniversityCommunity createUniversityCommunity (UniversityCommunityCreationDto dto) throws CommunityNameTakenException {
         // Check if community name is taken or not
         if (abstractCommunityService.checkNameTaken(dto.name())) {
             throw new CommunityNameTakenException(String.format("Community name %s has been already taken by an another public community", dto.name()));
@@ -70,6 +70,8 @@ public class UniversityCommunityService {
 
         UniversityCommunity community = universityCommunityMapper.toEntity(dto);
         universityCommunityRepository.save(community);
+
+        return community;
     }
 
 }

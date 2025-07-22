@@ -1,0 +1,31 @@
+# ---- Build Stage ----
+FROM eclipse-temurin:17 AS build
+
+# Set working directory inside the build container
+WORKDIR /app
+
+ENV GRADLE_USER_HOME=/home/gradle/.gradle
+
+# Copy only the necessary files to leverage Docker caching
+COPY ./gradlew gradlew
+COPY gradle gradle
+COPY build.gradle ./
+COPY src ./src
+
+# Build the Spring Boot application
+RUN ./gradlew clean build -x test
+
+# ---- Run Stage ----
+FROM eclipse-temurin:17
+
+# Set working directory inside the final container
+WORKDIR /app
+
+# Copy the built JAR from the previous stage
+COPY --from=build /app/build/libs/*.jar public-community-service.jar
+
+# Expose the application port
+EXPOSE 8084
+
+# Run the Spring Boot application
+ENTRYPOINT ["java", "-jar", "public-community-service.jar"]

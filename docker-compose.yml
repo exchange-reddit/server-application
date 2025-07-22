@@ -60,6 +60,22 @@ services:
       - post-db
     volumes:
       - ./uploads:/uploads
+
+  public-community-service:
+    build:
+      context: ./public-community-service
+      dockerfile: ./dockerfile
+    environment:
+      - DB_URL=${PUBLIC_COMMUNITY_DB_URL}
+      - DB_USERNAME=${PUBLIC_COMMUNITY_DB_USERNAME}
+      - DB_PASSWORD=${PUBLIC_COMMUNITY_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "8084:8084"
+    depends_on:
+      - public-community-db
+
   users-db:
     image: postgres:latest
     environment:
@@ -92,6 +108,18 @@ services:
       - .env
     ports:
       - "5435:5432"
+
+  public-community-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${PUBLIC_COMMUNITY_DB_NAME}
+      POSTGRES_USER: ${PUBLIC_COMMUNITY_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PUBLIC_COMMUNITY_DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5436:5432"
+
 volumes:
   gateway-gradle-cache:
   user-gradle-cache:

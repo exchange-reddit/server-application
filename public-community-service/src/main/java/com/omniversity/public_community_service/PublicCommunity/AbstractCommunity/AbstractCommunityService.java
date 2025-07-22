@@ -3,6 +3,7 @@ package com.omniversity.public_community_service.PublicCommunity.AbstractCommuni
 import com.omniversity.public_community_service.PublicCommunity.AbstractCommunity.dto.update.CommunityUpdateBackgroundImageDto;
 import com.omniversity.public_community_service.PublicCommunity.AbstractCommunity.dto.update.CommunityUpdateLogoImage;
 import com.omniversity.public_community_service.PublicCommunity.Entity.AbstractCommunity;
+import com.omniversity.public_community_service.PublicCommunity.Exception.CommunityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class AbstractCommunityService {
     public AbstractCommunity getCommunityById (Long id) {
         AbstractCommunity community = abstractCommunityRepository.findById(id).orElseThrow(() ->
         {
-            throw new RuntimeException();
+            throw new CommunityNotFoundException("The requested community was not found.");
         });
 
         return community;
