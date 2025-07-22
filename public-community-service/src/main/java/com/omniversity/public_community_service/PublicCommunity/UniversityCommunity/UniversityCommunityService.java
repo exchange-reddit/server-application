@@ -14,6 +14,7 @@ import com.omniversity.public_community_service.PublicCommunity.UniversityCommun
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+// TODO: Restrict ordinary users from creating, editing university communities (Probably through API gateway)
 @Service
 public class UniversityCommunityService {
     private final UniversityCommunityRepository universityCommunityRepository;
@@ -70,21 +71,5 @@ public class UniversityCommunityService {
         UniversityCommunity community = universityCommunityMapper.toEntity(dto);
         universityCommunityRepository.save(community);
     }
-
-    // Update logo image
-    public void updateUniversityCommunityLogo (UniversityCommunityUpdateLogoDto dto, UniversityCommunity community) {
-        // Set new image as the logo image
-        community.setLogoImage(dto.logoImage());
-        universityCommunityRepository.save(community);
-    }
-
-    // Update background image
-    public void updateUniversityBackgroundImage (UniversityCommunityUpdateBackgroundImageDto dto, UniversityCommunity community) {
-        // Set new background image as the background image
-        community.setBackgroundImage(dto.backgroundImage());
-        universityCommunityRepository.save(community);
-    }
-
-
 
 }
