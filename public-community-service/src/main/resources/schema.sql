@@ -11,3 +11,11 @@ CREATE TABLE IF NOT EXISTS "communities" (
     website VARCHAR(200),
     phone_number VARCHAR(50)
 );
+
+CREATE TABLE IF NOT EXISTS "dependencies" (
+    id INT PRIMARY KEY NOT NULL,
+    created_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    section_id INT NOT NULL,
+    post_id INT NOT NULL,
+    author_id INT NOT NULL
+)
