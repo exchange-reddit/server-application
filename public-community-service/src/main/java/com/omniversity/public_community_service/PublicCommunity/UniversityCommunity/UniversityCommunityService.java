@@ -5,26 +5,33 @@ import com.omniversity.public_community_service.PublicCommunity.Entity.Universit
 import com.omniversity.public_community_service.PublicCommunity.Exception.CommunityNameTakenException;
 import com.omniversity.public_community_service.PublicCommunity.Exception.CommunityNotFoundException;
 import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.dto.request.UniversityCommunityCreationDto;
-import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.dto.request.update.UniversityCommunityUpdateBackgroundImageDto;
-import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.dto.request.update.UniversityCommunityUpdateLogoDto;
 import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.dto.response.UniversityCommunityIntroductionDto;
 import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.dto.response.UniversityCommunityPageDto;
 import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.mapper.request.UniversityCommunityMapper;
 import com.omniversity.public_community_service.PublicCommunity.UniversityCommunity.mapper.response.UniversityCommunityResponse;
+import com.omniversity.public_community_service.Section.Entity.PostSection;
+import com.omniversity.public_community_service.Section.Exception.NoRelatedSectionsException;
+import com.omniversity.public_community_service.Section.PostSection.PostSectionRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 // TODO: Restrict ordinary users from creating, editing university communities (Probably through API gateway)
 @Service
 public class UniversityCommunityService {
     private final UniversityCommunityRepository universityCommunityRepository;
+    private final PostSectionRepository postSectionRepository;
     private final UniversityCommunityResponse universityCommunityResponse;
     private final AbstractCommunityService abstractCommunityService;
     private final UniversityCommunityMapper universityCommunityMapper;
 
     @Autowired
-    public UniversityCommunityService(UniversityCommunityRepository universityCommunityRepository, UniversityCommunityResponse universityCommunityResponse, AbstractCommunityService abstractCommunityService, UniversityCommunityMapper universityCommunityMapper) {
+    public UniversityCommunityService(UniversityCommunityRepository universityCommunityRepository, PostSectionRepository postSectionRepository, UniversityCommunityResponse universityCommunityResponse, AbstractCommunityService abstractCommunityService, UniversityCommunityMapper universityCommunityMapper) {
         this.universityCommunityRepository = universityCommunityRepository;
+        this.postSectionRepository = postSectionRepository;
         this.universityCommunityResponse = universityCommunityResponse;
         this.abstractCommunityService = abstractCommunityService;
         this.universityCommunityMapper = universityCommunityMapper;
@@ -73,5 +80,28 @@ public class UniversityCommunityService {
 
         return community;
     }
+
+    @Transactional
+    public UniversityCommunity addPostSection (Long id, PostSection postSection) throws CommunityNotFoundException {
+        UniversityCommunity community = this.universityCommunityRepository.findById(id).orElseThrow(() ->
+        {
+            throw new CommunityNotFoundException(String.format("Community with id %d was not found", id));
+        });
+
+        community.addPostSection(postSection);
+        return universityCommunityRepository.save(community);
+    }
+
+    // Returns the list of relevant post sections
+    @Transactional(readOnly = true)
+    public List<Long> getPostSections(Long id) {
+        List<Long> communityIds = postSectionRepository.findByCommunityId(id).orElseThrow(() ->
+        {
+            throw new NoRelatedSectionsException(String.format("No related post sections were found for the community with id %d", id));
+        });
+
+        return communityIds;
+    }
+
 
 }
