@@ -154,8 +154,11 @@ public class RegistrationTokenService {
                 // Remove token from DB
                 removeToken(token);
             }
+        } catch (NoSuchTokenException | InvalidTokenException e) {
+            // Re-throw specific exceptions so the caller can handle them.
+            throw e;
         } catch (Exception e) {
-            // Case where the token cannot be found (e.g. No token matches provided email)
+            throw e;
         }
     }
 

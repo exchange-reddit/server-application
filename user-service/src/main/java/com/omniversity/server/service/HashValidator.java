@@ -32,6 +32,7 @@ public class HashValidator {
     public boolean validateHash(String hashValue, String rawValue) throws HashValidationFailedException {
         try {
             String expectedHash = generateHash(rawValue);
+            System.out.println(expectedHash);
             return Objects.equals(hashValue, expectedHash);
         } catch (HashValidationFailedException e) {
             throw new HashValidationFailedException("Failed to generate or validate hash");

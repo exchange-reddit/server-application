@@ -61,7 +61,7 @@ public class VerificationServiceImpl extends VerificationServiceGrpc.Verificatio
                 // If an exception is thrown from the service layer, store the error message in the Error Message field of the proto
                 responseObserver.onNext(VerificationResponse.newBuilder()
                         .setSuccess(false)
-                        .setMessage(e.getMessage())
+                        .setMessage("")
                         .setErrorMessage(e.getMessage())
                         .build());
             }

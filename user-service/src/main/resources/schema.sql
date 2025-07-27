@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     middle_name VARCHAR(150),
     last_name VARCHAR(150) NOT NULL,
     date_of_birth DATE NOT NULL,
-    private_email VARCHAR(150) UNIQUE NOT NULL,
+    private_email VARCHAR(150) UNIQUE,
     private_email_verified BOOLEAN,
     home_uni VARCHAR(150) NOT NULL,
     home_email VARCHAR(150) UNIQUE NOT NULL,
