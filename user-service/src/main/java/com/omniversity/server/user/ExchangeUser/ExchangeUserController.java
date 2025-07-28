@@ -70,7 +70,7 @@ public class ExchangeUserController {
         }
     }
 
-    @GetMapping("/validate")
+    @PostMapping("/validate")
     ResponseEntity validateEmail(@RequestBody VerificationDto dto) {
         try {
             // Receive the validation result from verification-service

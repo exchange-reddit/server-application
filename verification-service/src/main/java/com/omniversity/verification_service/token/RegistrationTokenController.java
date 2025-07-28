@@ -21,7 +21,7 @@ public class RegistrationTokenController {
         this.registrationTokenService = registrationTokenService;
     }
 
-    @GetMapping("/email")
+    @PostMapping("/email")
     public ResponseEntity requestTokenEmail(@RequestBody RegistrationDto registrationDto) {
         try {
             // Check if there were any previous tokens created for the following email (To see further, check the relevant method in registrationTokenService)
