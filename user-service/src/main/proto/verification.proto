@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files=true;
+option java_package = "com.omniversity.verification_service.grpc";
+option java_outer_classname="VerificationProto";
+
+service VerificationService {
+  rpc sendVerificationRequest (VerificationRequest) returns (VerificationResponse);
+}
+
+message VerificationRequest {
+  string email = 1;
+  string code = 2;
+  int32 emailType = 3;
+}
+
+message VerificationResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -1,5 +1,7 @@
 package com.omniversity.server.user.ProspectiveUser;
 
+import com.omniversity.server.service.HashValidator;
+import com.omniversity.server.user.exception.HashValidationFailedException;
 import com.omniversity.server.user.exception.NoSuchUserException;
 import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.user.ProspectiveUser.dto.request.DesiredUniversityUpdateDto;
@@ -15,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class ProspectiveUserService {
     private final ProspectiveUserRepository prospectiveUserRepository;
@@ -25,18 +25,20 @@ public class ProspectiveUserService {
     private final ProspectiveUserMapper prospectiveUserMapper;
     private final ProspectiveUserResponse prospectiveUserResponse;
     private final UserService userService;
+    private final HashValidator hashValidator;
 
     @Autowired
-    public ProspectiveUserService (ProspectiveUserRepository prospectiveUserRepository, PasswordEncoder passwordEncoder, PasswordValidator passwordValidator, ProspectiveUserMapper prospectiveUserMapper, ProspectiveUserResponse prospectiveUserResponse, UserService userService) {
+    public ProspectiveUserService (ProspectiveUserRepository prospectiveUserRepository, PasswordEncoder passwordEncoder, PasswordValidator passwordValidator, ProspectiveUserMapper prospectiveUserMapper, ProspectiveUserResponse prospectiveUserResponse, UserService userService, HashValidator hashValidator) {
         this.prospectiveUserRepository = prospectiveUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.passwordValidator = passwordValidator;
         this.prospectiveUserMapper = prospectiveUserMapper;
         this.prospectiveUserResponse = prospectiveUserResponse;
         this.userService = userService;
+        this.hashValidator = hashValidator;
     }
 
-    public ProspectiveUser registerProspectiveUser(ProspectiveUserRegistrationDto dto) throws UserAlreadyExistsException, WeakPasswordException {
+    public ProspectiveUser registerProspectiveUser(ProspectiveUserRegistrationDto dto) throws UserAlreadyExistsException, WeakPasswordException, HashValidationFailedException {
         if (userService.checkEmailRegistered(dto.homeEmail(), 3)) {
             throw new UserAlreadyExistsException(String.format("You have already created an account using this email: %s", dto.homeEmail()));
         }
@@ -49,6 +51,10 @@ public class ProspectiveUserService {
 
         if (!passwordValidator.validatePasswordStrength(dto.password())) {
             throw new WeakPasswordException("The provided password does not comply to the security requirement.");
+        }
+
+        if (!hashValidator.validateHash(dto.homeHash(), dto.homeEmail())) {
+            throw new HashValidationFailedException("An error occurred while validating your home university email address.");
         }
 
         user.setPasswordHash(passwordEncoder.encode(dto.password()));
@@ -68,5 +74,9 @@ public class ProspectiveUserService {
         prospectiveUserRepository.save(user);
 
         return prospectiveUserResponse.toResponseProspectiveDto(user);
+    }
+
+    public ProspectiveUser getProspectiveUserByEmail(String email) {
+        return prospectiveUserRepository.findByHomeEmail(email).orElse(null);
     }
 }

@@ -142,11 +142,9 @@ class RegistrationTokenServiceTest {
         registrationToken.setExpiryDate(LocalDateTime.now().plusHours(1)); // Ensure token is not expired
         when(registrationTokenRepository.findByEmail(verificationDto.email())).thenReturn(Optional.of(registrationToken));
 
-        // When
-        boolean result = registrationTokenService.verifyToken(verificationDto);
+        registrationTokenService.verifyToken(verificationDto);
 
-        // Then
-        assertTrue(result);
+
         verify(registrationTokenRepository, times(1)).findByEmail(verificationDto.email());
         verify(registrationTokenRepository, times(1)).delete(registrationToken);
     }
@@ -157,11 +155,8 @@ class RegistrationTokenServiceTest {
         VerificationDto verificationDto = new VerificationDto("RandomCode", "nonexistent@email.com", 1);
         when(registrationTokenRepository.findByEmail(verificationDto.email())).thenReturn(Optional.empty());
 
-        // When
-        boolean result = registrationTokenService.verifyToken(verificationDto);
+        registrationTokenService.verifyToken(verificationDto);
 
-        // Then
-        assertFalse(result);
         verify(registrationTokenRepository, times(1)).findByEmail(verificationDto.email());
         verify(registrationTokenRepository, times(0)).delete(any(RegistrationToken.class));
     }

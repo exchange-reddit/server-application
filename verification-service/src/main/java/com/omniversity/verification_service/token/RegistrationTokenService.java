@@ -127,7 +127,7 @@ public class RegistrationTokenService {
         return token;
     }
 
-    public Boolean verifyToken(VerificationDto verificationDto) throws InvalidTokenException, NoSuchTokenException {
+    public void verifyToken(VerificationDto verificationDto) throws InvalidTokenException, NoSuchTokenException {
         try {
             // Find the token by using the provided email
             RegistrationToken token = registrationTokenRepository.findByEmail(verificationDto.email())
@@ -153,11 +153,12 @@ public class RegistrationTokenService {
             else {
                 // Remove token from DB
                 removeToken(token);
-                return true;
             }
+        } catch (NoSuchTokenException | InvalidTokenException e) {
+            // Re-throw specific exceptions so the caller can handle them.
+            throw e;
         } catch (Exception e) {
-            // Case where the token cannot be found (e.g. No token matches provided email)
-            return false;
+            throw e;
         }
     }
 

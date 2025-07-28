@@ -1,23 +1,21 @@
 package com.omniversity.server.user.ExchangeUser;
 
-import com.omniversity.server.user.exception.NoSuchUserException;
+
+import com.omniversity.server.service.HashValidator;
+import com.omniversity.server.user.exception.*;
 import com.omniversity.server.user.ExchangeUser.dto.request.UpdateExchangeUserDto;
 import com.omniversity.server.user.ExchangeUser.dto.response.ExchangeUserResponseNoPasswordDto;
 import com.omniversity.server.user.ExchangeUser.mapper.functional.ExchangeUserMapper;
 import com.omniversity.server.service.PasswordValidator;
 import com.omniversity.server.user.ExchangeUser.dto.request.RegistrationDto;
 import com.omniversity.server.user.ExchangeUser.dto.response.ReturnDto;
-import com.omniversity.server.user.exception.UserAlreadyExistsException;
 import com.omniversity.server.user.ExchangeUser.mapper.functional.UpdateExchangeUserMapper;
 import com.omniversity.server.user.ExchangeUser.mapper.response.ExchangeUserResponse;
 import com.omniversity.server.user.AllUser.UserService;
 import com.omniversity.server.user.entity.ExchangeUser;
-import com.omniversity.server.user.exception.WeakPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class ExchangeUserService {
@@ -28,9 +26,12 @@ public class ExchangeUserService {
     private final UpdateExchangeUserMapper updateExchangeUserMapper;
     private final ExchangeUserResponse exchangeUserResponse;
     private final PasswordValidator passwordValidator;
+    private final HashValidator hashValidator;
+
+
 
     @Autowired
-    public ExchangeUserService(ExchangeUserRepository exchangeUserRepository, UserService userService, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, UpdateExchangeUserMapper updateExchangeUserMapper, ExchangeUserResponse exchangeUserResponse, PasswordValidator passwordValidator) {
+    public ExchangeUserService(ExchangeUserRepository exchangeUserRepository, UserService userService, PasswordEncoder passwordEncoder, ExchangeUserMapper exchangeUserMapper, UpdateExchangeUserMapper updateExchangeUserMapper, ExchangeUserResponse exchangeUserResponse, PasswordValidator passwordValidator, HashValidator hashValidator) {
         this.exchangeUserRepository = exchangeUserRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -38,6 +39,7 @@ public class ExchangeUserService {
         this.updateExchangeUserMapper = updateExchangeUserMapper;
         this.exchangeUserResponse = exchangeUserResponse;
         this.passwordValidator = passwordValidator;
+        this.hashValidator = hashValidator;
     }
 
     public ExchangeUser getUser(long id) throws NoSuchUserException {
@@ -77,7 +79,7 @@ public class ExchangeUserService {
         return null;
     }
 
-    public ExchangeUser registerExchangeUser (RegistrationDto dto) throws UserAlreadyExistsException, WeakPasswordException {
+    public ExchangeUser registerExchangeUser (RegistrationDto dto) throws UserAlreadyExistsException, WeakPasswordException, VerificationRequestError, RegistrationFailedException, HashValidationFailedException {
         // Check if exchange email was already used
         if (userService.checkEmailRegistered(dto.exchangeEmail(), 2)) {
             throw new UserAlreadyExistsException(String.format("You have already created an account using this email: %s", dto.exchangeEmail()));
@@ -95,6 +97,17 @@ public class ExchangeUserService {
 
         if (!passwordValidator.validatePasswordStrength(dto.password())) {
             throw new WeakPasswordException("The provided password does not comply to the security requirement.");
+        }
+
+        // Here, we assume that the client's local storage has received the validation hash for each emails.
+        // Validate Home Email
+        if (!hashValidator.validateHash(dto.homeHash(), dto.homeEmail())) {
+            throw new HashValidationFailedException("An error occurred while validating your home university email address.");
+        }
+
+        // Validate Exchange Email
+        if (!hashValidator.validateHash(dto.exchangeHash(), dto.exchangeEmail())) {
+            throw new HashValidationFailedException("An error occurred while validating your exchange university email address.");
         }
 
         ExchangeUser user = exchangeUserMapper.toEntity(dto);

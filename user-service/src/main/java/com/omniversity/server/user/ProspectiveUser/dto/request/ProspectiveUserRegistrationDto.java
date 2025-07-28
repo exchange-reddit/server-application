@@ -31,6 +31,9 @@ public record ProspectiveUserRegistrationDto(
         @Email(message = "Provide a valid form of email")
         String homeEmail,
 
+        @NotNull(message = "Home email hash value must be provided")
+        String homeHash,
+
         @NotBlank(message = "Password must be provided")
         @Size(min = 8, message = "Password must be at least 8 characters long")
         String password,

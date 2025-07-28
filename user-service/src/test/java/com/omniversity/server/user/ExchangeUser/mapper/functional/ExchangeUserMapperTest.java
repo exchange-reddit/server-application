@@ -29,6 +29,7 @@ class ExchangeUserMapperTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -36,10 +37,10 @@ class ExchangeUserMapperTest {
                 Program.COMPUTER_SCIENCE,
                 University.KTH_ROYAL_INSTITUTE_OF_TECHNOLOGY,
                 "exchange@example.com",
+                "exchangeEmailHash",
                 LocalDate.of(2024, 9, 1),
                 LocalDate.of(2025, 5, 31)
         );
-
         ExchangeUser entity = mapper.toEntity(dto);
 
         assertEquals(dto.userName(), entity.getUserName());

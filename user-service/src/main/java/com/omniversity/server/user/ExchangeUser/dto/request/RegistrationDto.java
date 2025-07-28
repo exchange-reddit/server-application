@@ -30,6 +30,9 @@ public record RegistrationDto(
         @Email(message = "Provide a valid form of email")
         String homeEmail,
 
+        @NotNull(message = "Home email hash value must be provided")
+        String homeHash,
+
         @NotBlank(message = "Password must be provided")
         @Size(min = 8, message = "Password must be at least 8 characters long")
         String password,
@@ -51,6 +54,9 @@ public record RegistrationDto(
 
         @NotBlank(message = "Exchange email must be provided")
         String exchangeEmail,
+
+        @NotNull(message = "Exchange email hash value must be provided")
+        String exchangeHash,
 
         @NotEmpty(message = "Date of exchange start must be provided")
         LocalDate exchangeStart,

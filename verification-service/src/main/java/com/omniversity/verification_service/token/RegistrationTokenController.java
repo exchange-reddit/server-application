@@ -21,7 +21,7 @@ public class RegistrationTokenController {
         this.registrationTokenService = registrationTokenService;
     }
 
-    @GetMapping("/email")
+    @PostMapping("/email")
     public ResponseEntity requestTokenEmail(@RequestBody RegistrationDto registrationDto) {
         try {
             // Check if there were any previous tokens created for the following email (To see further, check the relevant method in registrationTokenService)
@@ -39,27 +39,6 @@ public class RegistrationTokenController {
             e.printStackTrace();
             // If failure to send email, return failure message with 400 status
             return new ResponseEntity<>("An error occurred while performing your request", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PostMapping("/validate")
-    public ResponseEntity<Boolean> validateToken(@RequestBody VerificationDto verificationDto) {
-        try {
-            // Find token using email and verification code (To see further, check the relevant method in registrationTokenService)
-            boolean result = registrationTokenService.verifyToken(verificationDto);
-
-            if (result) {
-                // Return 200 with success
-                return new ResponseEntity<>(true, HttpStatus.OK);
-            }
-
-            else {
-                // Return 400 with failure
-                return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            // If an exception occurs, return failure
-            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
         }
     }
 

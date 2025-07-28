@@ -2,7 +2,7 @@ package com.omniversity.verification_service.token.dto;
 
 import jakarta.validation.constraints.*;
 
-public record VerificationDto (
+public record VerificationDto(
         @NotBlank(message = "Verification code must be provided")
         String code,
 

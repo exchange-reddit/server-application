@@ -7,6 +7,7 @@ import com.omniversity.server.user.ProspectiveUser.dto.response.ProspectiveUserR
 import com.omniversity.server.user.entity.Enums.*;
 import com.omniversity.server.user.entity.ExchangeUser;
 import com.omniversity.server.user.entity.ProspectiveUser;
+import com.omniversity.server.user.exception.HashValidationFailedException;
 import com.omniversity.server.user.exception.NoSuchUserException;
 import com.omniversity.server.user.exception.UserAlreadyExistsException;
 import com.omniversity.server.user.exception.WeakPasswordException;
@@ -60,6 +61,7 @@ class ProspectiveUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -87,7 +89,7 @@ class ProspectiveUserControllerTest {
     }
 
     @Test
-    void testRegisterProspectiveUser_Fail_UserAlreadyExists_Username() {
+    void testRegisterProspectiveUser_Fail_UserAlreadyExists_Username() throws HashValidationFailedException {
         ProspectiveUserRegistrationDto registrationDto = new ProspectiveUserRegistrationDto(
                 "Test",
                 "M",
@@ -97,6 +99,7 @@ class ProspectiveUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -114,7 +117,7 @@ class ProspectiveUserControllerTest {
     }
 
     @Test
-    void testRegisterProspectiveUser_Fail_UserAlreadyExists_HomeEmail() {
+    void testRegisterProspectiveUser_Fail_UserAlreadyExists_HomeEmail() throws HashValidationFailedException {
         ProspectiveUserRegistrationDto registrationDto = new ProspectiveUserRegistrationDto(
                 "Test",
                 "M",
@@ -124,6 +127,7 @@ class ProspectiveUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -141,7 +145,7 @@ class ProspectiveUserControllerTest {
     }
 
     @Test
-    void testRegisterProspectiveUser_Fail_WeakPassword() {
+    void testRegisterProspectiveUser_Fail_WeakPassword() throws HashValidationFailedException {
         ProspectiveUserRegistrationDto registrationDto = new ProspectiveUserRegistrationDto(
                 "Test",
                 "M",
@@ -151,6 +155,7 @@ class ProspectiveUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,
@@ -168,7 +173,7 @@ class ProspectiveUserControllerTest {
     }
 
     @Test
-    void testGetUserProfile_Fail_InternalServerError() {
+    void testGetUserProfile_Fail_InternalServerError() throws HashValidationFailedException {
         ProspectiveUserRegistrationDto registrationDto = new ProspectiveUserRegistrationDto(
                 "Test",
                 "M",
@@ -178,6 +183,7 @@ class ProspectiveUserControllerTest {
                 "test@example.com",
                 University.KOREA_UNIVERSITY,
                 "home@example.com",
+                "homeEmailHash",
                 "password",
                 "testUser",
                 Country.UNITED_STATES,

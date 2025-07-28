@@ -1,0 +1,5 @@
+grpc:
+  client:
+    verification-service:
+      address: 'static://verification-service:9090'
+      negotiation-type: plaintext
