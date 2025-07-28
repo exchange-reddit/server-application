@@ -9,10 +9,9 @@ service VerificationService {
 }
 
 message VerificationRequest {
-  int64 id = 1;
-  string email = 2;
-  string code = 3;
-  int32 emailType = 4;
+  string email = 1;
+  string code = 2;
+  int32 emailType = 3;
 
 }
 

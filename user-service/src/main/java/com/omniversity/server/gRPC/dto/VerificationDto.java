@@ -4,9 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record VerificationDto(
-        @NotBlank(message = "User Id must be provided")
-        long id,
-
         @NotBlank(message = "Verification code must be provided")
         String code,
 

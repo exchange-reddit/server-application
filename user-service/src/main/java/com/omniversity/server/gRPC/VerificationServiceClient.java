@@ -15,7 +15,6 @@ public class VerificationServiceClient {
 
     public VerificationResponse sendVerificationRequest(VerificationDto dto) {
         VerificationRequest request = VerificationRequest.newBuilder()
-                .setId(dto.id())
                 .setEmail(dto.email())
                 .setCode(dto.code())
                 .setEmailType(dto.verificationType())
