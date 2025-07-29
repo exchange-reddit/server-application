@@ -1,8 +1,6 @@
 package com.omniversity.public_community_service.Section.PostSection;
 
-import com.omniversity.public_community_service.PostDependency.PostDependencyEntity;
-import com.omniversity.public_community_service.PostDependency.PostDependencyRepository;
-import com.omniversity.public_community_service.PostDependency.dto.NewDependencyDto;
+import com.omniversity.public_community_service.SectionPostDependency.PostSectionDependencyRepository;
 import com.omniversity.public_community_service.Section.Entity.PostSection;
 import com.omniversity.public_community_service.Section.Exception.NoSuchSectionException;
 import com.omniversity.public_community_service.Section.PostSection.dto.ThumbNailRetrievalDto;
@@ -14,12 +12,12 @@ import java.util.List;
 @Service
 public class PostSectionService {
     private final PostSectionRepository postSectionRepository;
-    private final PostDependencyRepository postDependencyRepository;
+    private final PostSectionDependencyRepository postSectionDependencyRepository;
 
     @Autowired
-    public PostSectionService(PostSectionRepository postSectionRepository, PostDependencyRepository postDependencyRepository) {
+    public PostSectionService(PostSectionRepository postSectionRepository, PostSectionDependencyRepository postSectionDependencyRepository) {
         this.postSectionRepository = postSectionRepository;
-        this.postDependencyRepository = postDependencyRepository;
+        this.postSectionDependencyRepository = postSectionDependencyRepository;
     }
 
     public ThumbNailRetrievalDto getSectionThumbnailPosts(Long id) throws NoSuchSectionException {
@@ -38,7 +36,7 @@ public class PostSectionService {
     }
 
     public List<Long> getAllPosts(Long id) {
-        List<Long> postIds = this.postDependencyRepository.findAllPosts(id);
+        List<Long> postIds = this.postSectionDependencyRepository.findAllPosts(id);
         return postIds;
     }
 

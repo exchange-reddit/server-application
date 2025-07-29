@@ -16,6 +16,5 @@ CREATE TABLE IF NOT EXISTS "dependencies" (
     id INT PRIMARY KEY NOT NULL,
     created_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     section_id INT NOT NULL,
-    post_id INT NOT NULL,
-    author_id INT NOT NULL
+    post_id INT NOT NULL
 )

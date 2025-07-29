@@ -1,4 +1,4 @@
-package com.omniversity.public_community_service.PostDependency;
+package com.omniversity.public_community_service.SectionPostDependency;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "dependencies")
 @Data
-public class PostDependencyEntity {
+public class PostSectionDependencyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -23,7 +23,4 @@ public class PostDependencyEntity {
 
     @Column(name = "post_id")
     Long postId;
-
-    @Column(name = "author_id")
-    Long authorId;
 }

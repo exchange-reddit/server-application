@@ -32,9 +32,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-	implementation 'org.springframework.kafka:spring-kafka'
-	implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
-	implementation 'org.springframework.cloud:spring-cloud-stream'
+	implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
 }
 
 tasks.named('test') {
