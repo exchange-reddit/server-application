@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omniversity.public_community_service.SectionPostDependency.PostSectionDependencyEntity;
 import com.omniversity.public_community_service.SectionPostDependency.PostSectionDependencyRepository;
 import com.omniversity.public_community_service.SectionPostDependency.dto.NewDependencyDto;
+import com.omniversity.public_community_service.mqtt.dto.DeletePostDto;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -71,7 +73,11 @@ public class MqttSubscriber implements ApplicationRunner {
                 if (topic.equals(NEW_POST_TOPIC)) {
                     processNewPostMessage(new String(message.getPayload()));
                 } else if (topic.equals(DELETE_POST_TOPIC)) {
-                    processDeletePostMessage(new String(message.getPayload()));
+                    byte[] payload = message.getPayload();
+
+                    ByteBuffer buffer = ByteBuffer.wrap(payload);
+                    long id = buffer.getLong();
+                    processDeletePostMessage(id);
                 }
             }
 
@@ -103,9 +109,8 @@ public class MqttSubscriber implements ApplicationRunner {
         }
     }
 
-    private void processDeletePostMessage(String payload) throws NumberFormatException {
+    private void processDeletePostMessage(Long postId) throws NumberFormatException {
         try {
-            Long postId = Long.valueOf(payload);
             postSectionDependencyRepository.deleteRemovedPosts(postId);
             System.out.printf("Deleted dependencies with post id: %d%n", postId);
         } catch (NumberFormatException e) {

@@ -1,9 +1,12 @@
 package com.omniversity.public_community_service.Section.PostSection;
 
+import com.omniversity.public_community_service.Section.Exception.InvalidNumberOfPostsException;
+import com.omniversity.public_community_service.Section.PostSection.dto.request.FirstNPostsDto;
+import com.omniversity.public_community_service.Section.PostSection.dto.response.ReturnNPostsDto;
 import com.omniversity.public_community_service.SectionPostDependency.PostSectionDependencyRepository;
 import com.omniversity.public_community_service.Section.Entity.PostSection;
 import com.omniversity.public_community_service.Section.Exception.NoSuchSectionException;
-import com.omniversity.public_community_service.Section.PostSection.dto.ThumbNailRetrievalDto;
+import com.omniversity.public_community_service.Section.PostSection.dto.request.ThumbNailRetrievalDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,11 @@ public class PostSectionService {
     public List<Long> getAllPosts(Long id) {
         List<Long> postIds = this.postSectionDependencyRepository.findAllPostIds(id);
         return postIds;
+    }
+
+    // TODO: Return first N posts
+    public void getNPosts(FirstNPostsDto dto) throws InvalidNumberOfPostsException {
+
     }
 
 

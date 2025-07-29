@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 @Service
@@ -35,6 +36,7 @@ public class PostService {
     private IMqttClient mqttClient;
 
     private static final String NEW_POST_TOPIC = "new-post";
+    private static final String DELETE_POST_TOPIC = "delete-post";
 
     public List<PostResponseDto> getAllPosts() {
         return postRepository.findAll().stream()
@@ -110,5 +112,23 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(id));
         postRepository.delete(post);
+
+        // Publish Delete Post Message to MQTT Broker
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(id);
+
+        MqttMessage mqttMessage = new MqttMessage(buffer.array());
+        mqttMessage.setQos(1);
+
+        try {
+            if (mqttClient.isConnected()) {
+                mqttClient.publish(DELETE_POST_TOPIC, mqttMessage);
+            } else {
+                System.err.println("MQTT Client is not connected. Message not published.");
+            }
+        } catch (MqttException e) {
+            System.err.println("Error publishing MQTT message: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -6,11 +6,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 public interface PostSectionDependencyRepository extends JpaRepository<PostSectionDependencyEntity, Long> {
     @Query("SELECT psd.postId FROM PostSectionDependencyEntity psd WHERE psd.sectionId = :sectionId")
     List<Long> findAllPostIds(@Param("sectionId") Long sectionId);
+
+    @Query("SELECT psd.postId FROM PostSectionDependencyEntity psd WHERE psd.sectionId = :sectionId ORDER BY psd.createdDate DESC")
+    List<Long> findMostRecentPostIds(@Param("sectionId") Long sectionId, Pageable pageable);
 
     @Modifying
     @Transactional
