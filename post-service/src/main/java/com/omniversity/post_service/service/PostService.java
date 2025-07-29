@@ -11,6 +11,9 @@ import com.omniversity.post_service.mapper.PostMapper;
 import com.omniversity.post_service.repository.PostRepository;
 import com.omniversity.post_service.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,9 +26,15 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+
     private final PostMapper postMapper;
     @Autowired
     private final StorageService storageService;
+
+    @Autowired
+    private IMqttClient mqttClient;
+
+    private static final String NEW_POST_TOPIC = "new-post";
 
     public List<PostResponseDto> getAllPosts() {
         return postRepository.findAll().stream()
@@ -54,6 +63,29 @@ public class PostService {
         }
 
         Post savedPost = postRepository.save(post);
+
+        // Publish New Post Message to MQTT Broker
+        String payload = String.format(
+                "{\"postId\": %d, \"sectionId\": %d}",
+                savedPost.getId(),
+                createDto.getSectionId()
+        );
+
+        MqttMessage mqttMessage = new MqttMessage(payload.getBytes());
+        mqttMessage.setQos(1);
+
+        try {
+            if (mqttClient.isConnected()) {
+                mqttClient.publish(NEW_POST_TOPIC, mqttMessage);
+                System.out.println("Published message to " + NEW_POST_TOPIC);
+            } else {
+                System.err.println("MQTT Client is not connected. Message not published");
+            }
+        } catch (MqttException e) {
+            System.err.println("Error publishing MQTT message: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         return postMapper.toResponseDto(savedPost);
     }
 

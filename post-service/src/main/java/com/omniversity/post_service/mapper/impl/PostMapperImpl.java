@@ -25,15 +25,15 @@ public class PostMapperImpl implements PostMapper {
         if (dto.getAuthorId() == null) {
             throw new InvalidInputException("Author ID cannot be null.");
         }
-        if (dto.getCommunityId() == null) {
-            throw new InvalidInputException("Community ID cannot be null.");
+        if (dto.getSectionId() == null) {
+            throw new InvalidInputException("Section ID cannot be null.");
         }
 
         Post post = new Post();
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
         post.setAuthorId(dto.getAuthorId());
-        post.setCommunityId(dto.getCommunityId());
+        post.setSectionId(dto.getSectionId());
         post.setStatus(PostStatus.PUBLISHED); // default status
         post.setDeleted(false); // default value
         return post;
@@ -47,8 +47,8 @@ public class PostMapperImpl implements PostMapper {
         if (dto.getContent() != null) {
             post.setContent(dto.getContent());
         }
-        if (dto.getCommunityId() != null) {
-            post.setCommunityId(dto.getCommunityId());
+        if (dto.getSectionId() != null) {
+            post.setSectionId(dto.getSectionId());
         }
         if (dto.getStatus() != null) {
             post.setStatus(dto.getStatus());
@@ -64,7 +64,7 @@ public class PostMapperImpl implements PostMapper {
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
         dto.setAuthorId(post.getAuthorId());
-        dto.setCommunityId(post.getCommunityId());
+        dto.setCommunityId(post.getSectionId());
         dto.setStatus(post.getStatus());
         return dto;
     }

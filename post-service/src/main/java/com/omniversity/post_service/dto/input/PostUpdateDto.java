@@ -7,6 +7,6 @@ import lombok.Data;
 public class PostUpdateDto {
     private String title;
     private String content;
-    private Long communityId;
+    private Long sectionId;
     private PostStatus status;
 }

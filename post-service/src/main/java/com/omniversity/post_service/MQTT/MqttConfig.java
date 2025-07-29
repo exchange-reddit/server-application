@@ -1,4 +1,4 @@
-package com.omniversity.public_community_service.mqtt;
+package com.omniversity.post_service.MQTT;
 
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -42,6 +42,12 @@ public class MqttConfig {
     public IMqttClient mqttClient(MqttConnectOptions options) throws MqttException {
         MqttClient client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
 
+        if (!client.isConnected()) {
+            client.connect(options);
+            System.out.println("MQTT client connected to broker: " + brokerUrl);
+        }
+
         return client;
     }
+
 }

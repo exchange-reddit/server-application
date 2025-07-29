@@ -7,5 +7,5 @@ public class PostCreateDto {
     private String title;
     private String content;
     private Long authorId;
-    private Long communityId;
+    private Long sectionId;
 }

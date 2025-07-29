@@ -10,7 +10,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class MqttSubscriber implements ApplicationRunner {
@@ -18,22 +19,46 @@ public class MqttSubscriber implements ApplicationRunner {
     @Autowired
     private IMqttClient mqttClient;
 
+    private final MqttConnectOptions mqttConnectOptions;
+
     @Autowired
     private PostSectionDependencyRepository postSectionDependencyRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final ExecutorService messageProcessor = Executors.newCachedThreadPool();
+
     // New Post Information (Inbound)
-    private static final String NEW_POST_TOPIC = "/new-post";
+    private static final String NEW_POST_TOPIC = "new-post";
 
     // Deleted Post Information (Inbound)
-    private static final String DELETE_POST_TOPIC = "/delete-post";
+    private static final String DELETE_POST_TOPIC = "delete-post";
 
+    @Autowired
+    public MqttSubscriber(IMqttClient mqttClient,
+                          MqttConnectOptions mqttConnectOptions, PostSectionDependencyRepository repository,
+                          ObjectMapper objectMapper) {
+        this.mqttClient = mqttClient;
+        this.mqttConnectOptions = mqttConnectOptions;
+        this.postSectionDependencyRepository = repository;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        mqttClient.setCallback(new MqttCallback() {
+        mqttClient.setCallback(new MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+                try {
+                    System.out.println("Mqtt connection established");
+                    mqttClient.subscribe(NEW_POST_TOPIC, 1);
+                    mqttClient.subscribe(DELETE_POST_TOPIC, 1);
+                    System.out.println("Subscribed to topics: " + NEW_POST_TOPIC + " " + DELETE_POST_TOPIC);
+                } catch (MqttException e) {
+                    System.err.println("Subscription failed: " + e.getMessage());
+                }
+            }
             @Override
             public void connectionLost(Throwable cause) {
                 System.out.println("MQTT connection lost: " + cause.getMessage());
@@ -58,13 +83,10 @@ public class MqttSubscriber implements ApplicationRunner {
         });
 
         try {
-            // Setting the QOS as 1 for robustness and performance
-            mqttClient.subscribe(NEW_POST_TOPIC, 1);
-            mqttClient.subscribe(DELETE_POST_TOPIC, 1);
-            System.out.println("Subscribed to topic: " + NEW_POST_TOPIC + " & " + DELETE_POST_TOPIC);
+            System.out.println("Attempting to connect to MQTT broker at " + mqttClient.getServerURI());
+            mqttClient.connect(mqttConnectOptions);
         } catch (MqttException e) {
-            System.err.println("Error subscribing to topic: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error initiating MQTT connection: " + e.getMessage());
         }
     }
 

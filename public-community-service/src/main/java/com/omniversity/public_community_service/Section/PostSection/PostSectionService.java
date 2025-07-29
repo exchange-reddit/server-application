@@ -36,7 +36,7 @@ public class PostSectionService {
     }
 
     public List<Long> getAllPosts(Long id) {
-        List<Long> postIds = this.postSectionDependencyRepository.findAllPosts(id);
+        List<Long> postIds = this.postSectionDependencyRepository.findAllPostIds(id);
         return postIds;
     }
 

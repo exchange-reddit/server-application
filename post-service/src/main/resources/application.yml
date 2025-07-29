@@ -25,3 +25,10 @@ logging:
         type:
           descriptor:
             sql: TRACE # This shows parameter bindings
+
+mqtt:
+  broker: tcp://host.docker.internal:1883
+  clientId: post-service-client
+  topic:
+    outbound: new-post
+

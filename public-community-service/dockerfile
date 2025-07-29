@@ -26,6 +26,7 @@ COPY --from=build /app/build/libs/*.jar public-community-service.jar
 
 # Expose the application port
 EXPOSE 8084
+EXPOSE 1883
 
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "public-community-service.jar"]

@@ -9,12 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PostSectionDependencyRepository extends JpaRepository<PostSectionDependencyEntity, Long> {
-    List<Long> findAllPosts(Long sectionId);
-    List<Long> findRecentPostsCustom(Long sectionId);
+    @Query("SELECT psd.postId FROM PostSectionDependencyEntity psd WHERE psd.sectionId = :sectionId")
+    List<Long> findAllPostIds(@Param("sectionId") Long sectionId);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM PostSectionDependency psd WHERE psd.postId = :postId")
+    @Query("DELETE FROM PostSectionDependencyEntity psd WHERE psd.postId = :postId")
     void deleteRemovedPosts(@Param("postId") Long postId);
 
 }

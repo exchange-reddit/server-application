@@ -21,7 +21,7 @@ public class UniversityCommunity extends AbstractCommunity {
     @Column(name="phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "university_community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<PostSection> postSections = new ArrayList<>();
 
     public UniversityCommunity () {}
@@ -60,11 +60,11 @@ public class UniversityCommunity extends AbstractCommunity {
     // Helper method to add post sections to university community
     public void addPostSection(PostSection section) {
         postSections.add(section);
-        section.setCommunityId(this);
+        section.setCommunity(this);
     }
 
     public void removePostSection(PostSection section) {
         postSections.remove(section);
-        section.setCommunityId(null);
+        section.setCommunity(null);
     }
 }

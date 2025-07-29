@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface PostSectionRepository extends JpaRepository<PostSection, Long> {
     Optional<PostSection> findById(Long id);
-    @Query("SELECT p.id FROM POST_SECTION p WHERE p.community.id = :universityCommunityId")
+    @Query("SELECT p.id FROM PostSection p WHERE p.community.id = :universityCommunityId")
     Optional<List<Long>> findByCommunityId(@Param("universityCommunityId") Long universityCommunityId);
+
 }

@@ -37,8 +37,8 @@ public class Post {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
-    @Column(name = "community_id", nullable = false)
-    private Long communityId;
+    @Column(name = "section_id", nullable = false)
+    private Long sectionId;
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false; // default to false

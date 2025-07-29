@@ -7,7 +7,7 @@ CREATE TABLE post (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     author_id BIGINT NOT NULL,
-    community_id BIGINT NOT NULL,
+    section_id BIGINT NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     status VARCHAR(10) NOT NULL DEFAULT 'PUBLISHED',
     attachment_path TEXT
